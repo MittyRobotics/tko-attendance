@@ -1,8 +1,11 @@
+import moment from 'moment';
+
 const express = require("express");
 const router = express.Router();
 
 router.use(function timeLog(req, res, next) {
-  console.log("Request Received - Time: ", new Date(new Date().toUTCString()));
+    
+  console.log(req.method, moment(new Date().toUTCString()).format('MMMM Do, h:mm:ss a'));
   next();
 });
 
