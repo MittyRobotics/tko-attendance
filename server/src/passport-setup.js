@@ -31,7 +31,6 @@ passport.use(
 
       var user = users.find((user) => user.google_id === profile.id);
       if (user) {
-        console.log(user);
         return cb(null, user);
       }
 
