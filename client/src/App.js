@@ -1,46 +1,30 @@
-import React, { Component } from "react";
-import logo from "./logo.svg";
+import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 import "./App.css";
+import Landing from "./views/Landing";
+import Login from "./views/Login";
 
-class App extends Component {
-  state = {
-    data: null,
-  };
+const App = () => {
+  return (
+    <div>
+      <Router>
+        <nav>
+          <ul>
+            <li>
+              <Link to="/">Landing</Link>
+            </li>
+            <li>
+              <Link to="/login">Login</Link>
+            </li>
+          </ul>
+        </nav>
 
-  componentDidMount() {
-    this.callBackendAPI()
-      .then((res) => this.setState({ data: res.express }))
-      .catch((err) => console.log(err));
-  }
-  // fetching the GET route from the Express server which matches the GET route from server.js
-  callBackendAPI = async () => {
-    const response = await fetch("/backend_test");
-    const body = await response.json();
-
-    if (response.status !== 200) {
-      throw Error(body.message);
-    }
-    return body;
-  };
-
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p className="App-intro">{this.state.data}</p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
-    );
-  }
-}
+        <Routes>
+          <Route path="/" exact={true} element={<Landing />} />
+          <Route path="/login" exact={true} element={<Login />} />
+        </Routes>
+      </Router>
+    </div>
+  );
+};
 
 export default App;
