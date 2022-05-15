@@ -5,16 +5,48 @@ import "./Login.css";
 class Login extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      google_button_clicked: false,
+    };
   }
 
   render() {
     return (
       <div>
-        <h1>Login</h1>
-        <a href={process.env.REACT_APP_SERVER_URL + "/auth/google"}>
-          Sign in with google
-        </a>
+        <section class="hero-pattern">
+          <div class="login-img">
+            <img src={require("../img/tko_logo.png")} alt="TKO Logo" />
+          </div>
+
+          <h1 class="page-title">Attendance</h1>
+
+          <div class="login-msg">
+            <div class="google-auth-wrapper">
+              <div class="block tag-wrapper">
+                <span class="tag is-warning">New & Returning Students</span>
+              </div>
+              <div class="block">
+                <button
+                  id="google-auth-btn-id"
+                  className={
+                    "button is-success is-light google-auth-btn is-outlined" +
+                    (this.state.google_button_clicked ? " is-loading" : "")
+                  }
+                  onClick={() => {
+                    this.setState({ google_button_clicked: true });
+                    setTimeout(() => {
+                      this.setState({ google_button_clicked: false });
+                      window.location =
+                        process.env.REACT_APP_SERVER_URL + "/auth/google";
+                    }, 1000);
+                  }}
+                >
+                  Log in with Google
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     );
   }
