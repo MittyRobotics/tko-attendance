@@ -10,36 +10,37 @@ class Login extends React.Component {
     };
   }
 
+  loginButton() {
+    this.setState({ google_button_clicked: true });
+    setTimeout(() => {
+      this.setState({ google_button_clicked: false });
+      window.location = process.env.REACT_APP_SERVER_URL + "/auth/google";
+    }, 1000);
+  }
+
   render() {
     return (
       <div>
-        <section class="hero-pattern">
-          <div class="login-img">
+        <section className="hero-pattern">
+          <div className="login-img">
             <img src={require("../img/tko_logo.png")} alt="TKO Logo" />
           </div>
 
-          <h1 class="page-title">Attendance</h1>
+          <h1 className="page-title">Attendance</h1>
 
-          <div class="login-msg">
-            <div class="google-auth-wrapper">
-              <div class="block tag-wrapper">
-                <span class="tag is-warning">New & Returning Students</span>
+          <div className="login-msg">
+            <div className="google-auth-wrapper">
+              <div className="block tag-wrapper">
+                <span className="tag is-warning">New & Returning Students</span>
               </div>
-              <div class="block">
+              <div className="block">
                 <button
                   id="google-auth-btn-id"
                   className={
                     "button is-success is-light google-auth-btn is-outlined" +
                     (this.state.google_button_clicked ? " is-loading" : "")
                   }
-                  onClick={() => {
-                    this.setState({ google_button_clicked: true });
-                    setTimeout(() => {
-                      this.setState({ google_button_clicked: false });
-                      window.location =
-                        process.env.REACT_APP_SERVER_URL + "/auth/google";
-                    }, 1000);
-                  }}
+                  onClick={() => this.loginButton()}
                 >
                   Log in with Google
                 </button>
