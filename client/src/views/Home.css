@@ -61,3 +61,21 @@
   width: fit-content;
   margin: 0 auto;
 }
+
+.modal-title {
+  font-family: "Inter", sans-serif;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: black;
+  padding: 2%;
+}
+
+.box {
+  text-align: center;
+  border: 5px solid teal;
+  border-radius: 10px;
+}
+
+.save-btn {
+  margin-top: 5%;
+}

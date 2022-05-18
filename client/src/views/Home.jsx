@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import SettingsModal from "./components/SettingsModal";
 import "bulma/css/bulma.min.css";
 import "animate.css";
 import "./Home.css";
@@ -52,14 +53,14 @@ function Home({ user, authenticated }) {
       <section className="hero-pattern">
         <div className="container sign-out block">
           <button
-            className="button is-link is-light settings-btn"
+            className="button is-link is-light settings-btn animate__animated animate__fadeIn"
             onClick={() => setSettingsClicked(true)}
           >
             Settings
           </button>
           <button
             className={
-              "button is-danger animate__animated animate__jackInTheBox" +
+              "button is-danger animate__animated animate__fadeIn" +
               (signoutClicked ? " is-loading" : "")
             }
             onClick={() => signout()}
@@ -77,7 +78,7 @@ function Home({ user, authenticated }) {
             {user.department} Department | Grade {user.current_grade}
           </h3>
         </div>
-        <div className="columns">
+        <div className="columns animate__animated animate__fadeInUp">
           <div className="column">
             <div className="actions-card">
               <h2 className="actions-title">Student</h2>
@@ -94,20 +95,11 @@ function Home({ user, authenticated }) {
           </div>
           {user.admin ? adminActions : null}
         </div>
-        <div class={"modal" + (settingsClicked ? "is-active" : "")}>
-          <div
-            class="modal-background"
-            onClick={() => setSettingsClicked(false)}
-          ></div>
-          <div class="modal-content">
-            <div class="box">test</div>
-          </div>
-          <button
-            class="modal-close is-large"
-            aria-label="close"
-            onClick={() => setSettingsClicked(false)}
-          ></button>
-        </div>
+        <SettingsModal
+          user={user}
+          settingsClicked={settingsClicked}
+          setSettingsClicked={setSettingsClicked}
+        />
       </section>
     </div>
   );
