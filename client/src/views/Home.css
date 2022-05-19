@@ -79,3 +79,27 @@
 .save-btn {
   margin-top: 5%;
 }
+
+.qr-code-container {
+  margin: 5%;
+}
+
+.req-msg {
+  font-family: "Inter", sans-serif;
+  font-size: 1 rem;
+  font-weight: 400;
+  border: 2px solid black;
+  border-radius: 10px;
+  width: fit-content;
+  margin: 0 auto;
+  padding: 5px;
+  margin-top: 5%;
+}
+
+.req-msg:empty {
+  border: none;
+}
+
+.attendance-tag {
+  margin-top: 1.5%;
+}

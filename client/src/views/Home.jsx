@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import SettingsModal from "./components/SettingsModal";
+import QRModal from "./components/QRModal";
+import RequestModal from "./components/RequestModal";
+
 import "bulma/css/bulma.min.css";
 import "animate.css";
+import "hover.css";
 import "./Home.css";
 
 function Home({ user, authenticated }) {
@@ -9,6 +13,8 @@ function Home({ user, authenticated }) {
 
   const [signoutClicked, setSignoutClicked] = useState(false);
   const [settingsClicked, setSettingsClicked] = useState(false);
+  const [qrClicked, setQrClicked] = useState(false);
+  const [requestClicked, setRequestClicked] = useState(false);
 
   const signout = () => {
     setSignoutClicked(true);
@@ -23,24 +29,24 @@ function Home({ user, authenticated }) {
       <div className="actions-card">
         <h2 className="actions-title">Admin</h2>
         <br></br>
-        <button className="button is-warning block action-btn">
+        <button className="button is-warning block action-btn hvr-grow">
           QR Scanner
         </button>
         <br></br>
-        <button className="button is-warning block action-btn">
-          Signout Requests
+        <button className="button is-warning block action-btn hvr-grow">
+          Sign In/Out Requests
         </button>
         <br></br>
-        <button className="button is-info block action-btn">
+        <button className="button is-info block action-btn hvr-grow">
           Student Roster
         </button>
         <br></br>
-        <button className="button is-info block action-btn">
+        <button className="button is-info block action-btn hvr-grow">
           Attendance Data
         </button>
         <br></br>
         <br></br>
-        <button className="button is-danger is-light block action-btn">
+        <button className="button is-danger is-light block action-btn hvr-grow">
           Signout All Students
         </button>
         <br></br>
@@ -77,18 +83,27 @@ function Home({ user, authenticated }) {
           <h3 className="department-grade">
             {user.department} Department | Grade {user.current_grade}
           </h3>
+          <span className="tag is-info attendance-tag">
+            {user.present ? "Signed In" : "Signed Out"}
+          </span>
         </div>
         <div className="columns animate__animated animate__fadeInUp">
           <div className="column">
             <div className="actions-card">
               <h2 className="actions-title">Student</h2>
               <br></br>
-              <button className="button is-warning block action-btn">
+              <button
+                className="button is-warning block action-btn hvr-grow"
+                onClick={() => setQrClicked(true)}
+              >
                 QR Code
               </button>
               <br></br>
-              <button className="button is-warning block action-btn">
-                Request Signout
+              <button
+                className="button is-warning block action-btn hvr-grow"
+                onClick={() => setRequestClicked(true)}
+              >
+                Request Sign In/Out
               </button>
               <br></br>
             </div>
@@ -99,6 +114,16 @@ function Home({ user, authenticated }) {
           user={user}
           settingsClicked={settingsClicked}
           setSettingsClicked={setSettingsClicked}
+        />
+        <QRModal
+          user={user}
+          qrClicked={qrClicked}
+          setQrClicked={setQrClicked}
+        />
+        <RequestModal
+          user={user}
+          requestClicked={requestClicked}
+          setRequestClicked={setRequestClicked}
         />
       </section>
     </div>

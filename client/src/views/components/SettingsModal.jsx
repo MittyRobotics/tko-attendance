@@ -54,15 +54,15 @@ function SettingsModal({ user, settingsClicked, setSettingsClicked }) {
   };
 
   return (
-    <div class={"modal " + (settingsClicked ? "is-active" : "")}>
+    <div className={"modal " + (settingsClicked ? "is-active" : "")}>
       <div
-        class="modal-background"
+        className="modal-background"
         onClick={() => setSettingsClicked(false)}
       ></div>
-      <div class="modal-content">
-        <div class="box">
-          <h1 class="modal-title">Change Department</h1>
-          <div class="select is-primary">
+      <div className="modal-content">
+        <div className="box">
+          <h1 className="modal-title">Change Department</h1>
+          <div className="select is-primary">
             <select onChange={handleDeptChange}>
               <option>---</option>
               <option>FRC Programming</option>
@@ -74,8 +74,8 @@ function SettingsModal({ user, settingsClicked, setSettingsClicked }) {
               <option>Operations</option>
             </select>
           </div>
-          <h1 class="modal-title">Change Grade</h1>
-          <div class="select is-primary">
+          <h1 className="modal-title">Change Grade</h1>
+          <div className="select is-primary">
             <select onChange={handleGradeChange}>
               <option>---</option>
               <option>9 (Freshman)</option>
@@ -94,7 +94,7 @@ function SettingsModal({ user, settingsClicked, setSettingsClicked }) {
         </div>
       </div>
       <button
-        class="modal-close is-large"
+        className="modal-close is-large"
         aria-label="close"
         onClick={() => setSettingsClicked(false)}
       ></button>

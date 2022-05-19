@@ -9,11 +9,12 @@
     "animate.css": "^4.1.1",
     "bulma": "^0.9.4",
     "dotenv": "^16.0.1",
+    "hover.css": "^2.3.2",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
+    "react-qr-code": "^2.0.7",
     "react-router-dom": "^6.3.0",
-    "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4"
+    "react-scripts": "5.0.1"
   },
   "proxy": "http://localhost:4000",
   "scripts": {
