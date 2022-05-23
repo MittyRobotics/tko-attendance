@@ -16,12 +16,12 @@ router.get(
 router.get("/login/success", (req, res) => {
   if (req.user) {
     res.json({
-      success: true,
-      message: "user has successfully authenticated",
       user: req.user,
-      cookies: req.cookies,
     });
   }
+  res.json({
+    user: false,
+  });
 });
 
 router.get("/login/failed", (req, res) => {

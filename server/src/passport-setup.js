@@ -1,3 +1,4 @@
+import e from "express";
 import supabase from "./supabase-setup";
 
 const passport = require("passport");
@@ -10,7 +11,11 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser(async (id, done) => {
   let { data: users, error } = await supabase.from("users");
   let user = users.find((user) => user.id === id);
-  done(error, user);
+  if (user) {
+    done(null, user);
+  } else {
+    done(null, false);
+  }
 });
 
 passport.use(

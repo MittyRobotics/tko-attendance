@@ -11,7 +11,6 @@ const passport = require("passport");
 const authRoutes = require("./routes/auth");
 const indexRoutes = require("./routes/tables");
 
-const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const passportSetup = require("./passport-setup");
 const logger = require("morgan");

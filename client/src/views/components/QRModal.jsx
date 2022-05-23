@@ -11,7 +11,8 @@ function QRModal({ user, qrClicked, setQrClicked }) {
       <div className="modal-content">
         <div className="box">
           <div className="qr-code-container">
-            <QRCode value={user.google_id} size={250} />
+            {/* qr code color to teal */}
+            <QRCode value={user.google_id} size={250} fgColor={"teal"} />
           </div>
           <h1 className="modal-title">{user.name}</h1>
           <br></br>

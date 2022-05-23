@@ -1,16 +1,18 @@
-import React from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import React, { useEffect } from "react";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
 import Login from "./views/Login";
 import Home from "./views/Home";
+import QRScanner from "./views/QRScanner";
 
-class App extends React.Component {
-  state = {
-    user: {},
-    authenticated: false,
-    error: null,
-  };
+function App() {
+  const [user, setUser] = React.useState(null);
 
-  componentDidMount() {
+  useEffect(() => {
     fetch(process.env.REACT_APP_SERVER_URL + "/auth/login/success", {
       method: "GET",
       credentials: "include",
@@ -21,47 +23,31 @@ class App extends React.Component {
       },
     })
       .then((response) => {
-        if (response.status === 200) return response.json();
-        throw new Error("failed to authenticate user");
+        return response.json();
       })
       .then((responseJson) => {
-        this.setState({
-          authenticated: true,
-          user: responseJson.user,
-        });
-      })
-      .catch((error) => {
-        this.setState({
-          authenticated: false,
-          error: "failed to authenticate user",
-        });
+        console.log(responseJson);
+        setUser(responseJson.user);
       });
+  }, []);
+
+  if (user === null) {
+    return <div>Loading...</div>;
   }
 
-  render() {
-    return (
-      <div>
-        <Router>
-          <Routes>
-            <Route
-              path="/"
-              exact={true}
-              element={
-                this.state.authenticated ? (
-                  <Home
-                    user={this.state.user}
-                    authenticated={this.state.authenticated}
-                  />
-                ) : (
-                  <Login />
-                )
-              }
-            />
-          </Routes>
-        </Router>
-      </div>
-    );
-  }
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={user ? <Home user={user} /> : <Login />} />
+        <Route
+          path="qrscan"
+          element={
+            user ? <QRScanner user={user} /> : <Navigate to="/" replace />
+          }
+        />
+      </Routes>
+    </Router>
+  );
 }
 
 export default App;

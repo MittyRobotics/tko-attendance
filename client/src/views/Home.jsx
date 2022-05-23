@@ -8,8 +8,8 @@ import "animate.css";
 import "hover.css";
 import "./Home.css";
 
-function Home({ user, authenticated }) {
-  console.log(user);
+function Home({ user }) {
+  // console.log(user);
 
   const [signoutClicked, setSignoutClicked] = useState(false);
   const [settingsClicked, setSettingsClicked] = useState(false);
@@ -71,7 +71,7 @@ function Home({ user, authenticated }) {
             }
             onClick={() => signout()}
           >
-            Sign Out
+            Log Out
           </button>
         </div>
         <div className="container user-info animate__animated animate__fadeInUp">
