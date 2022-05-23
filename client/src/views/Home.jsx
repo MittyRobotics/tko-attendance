@@ -34,7 +34,7 @@ function Home({ user }) {
         <br></br>
         <button
           className="button is-warning block action-btn hvr-grow"
-          onClick={() => navigate("/qrscan")}
+          onClick={() => (window.location = "/qrscan")}
         >
           QR Scanner
         </button>

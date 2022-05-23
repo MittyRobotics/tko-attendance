@@ -103,3 +103,31 @@
 .attendance-tag {
   margin-top: 1.5%;
 }
+
+.qr-title {
+  text-align: center;
+}
+
+.qr-wrapper {
+  border-radius: 15px;
+  text-align: center;
+}
+
+.blink {
+  background-color: #d4f2a1;
+}
+
+.blink-red {
+  background-color: #f2a1a1;
+}
+
+.qr-message {
+  margin-top: 1vh;
+  margin: 0 auto;
+  text-align: center;
+}
+
+#qr-msg {
+  color: #5b5aff;
+  font-weight: 800;
+}

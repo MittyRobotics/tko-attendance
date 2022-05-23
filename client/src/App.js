@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import Login from "./views/Login";
 import Home from "./views/Home";
-import QRScanner from "./views/QRScanner";
+import QRScannerComponent from "./views/QRScannerComponent";
 import ReactLoading from "react-loading";
 
 function App() {
@@ -47,7 +47,11 @@ function App() {
         <Route
           path="qrscan"
           element={
-            user ? <QRScanner user={user} /> : <Navigate to="/" replace />
+            user && user.admin ? (
+              <QRScannerComponent user={user} />
+            ) : (
+              <Navigate to="/" replace />
+            )
           }
         />
       </Routes>
