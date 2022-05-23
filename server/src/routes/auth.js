@@ -18,6 +18,7 @@ router.get("/login/success", (req, res) => {
     res.json({
       user: req.user,
     });
+    return;
   }
   res.json({
     user: false,

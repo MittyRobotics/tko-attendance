@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import SettingsModal from "./components/SettingsModal";
 import QRModal from "./components/QRModal";
 import RequestModal from "./components/RequestModal";
@@ -16,6 +17,8 @@ function Home({ user }) {
   const [qrClicked, setQrClicked] = useState(false);
   const [requestClicked, setRequestClicked] = useState(false);
 
+  const navigate = useNavigate();
+
   const signout = () => {
     setSignoutClicked(true);
     setTimeout(() => {
@@ -29,7 +32,10 @@ function Home({ user }) {
       <div className="actions-card">
         <h2 className="actions-title">Admin</h2>
         <br></br>
-        <button className="button is-warning block action-btn hvr-grow">
+        <button
+          className="button is-warning block action-btn hvr-grow"
+          onClick={() => navigate("/qrscan")}
+        >
           QR Scanner
         </button>
         <br></br>

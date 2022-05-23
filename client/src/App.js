@@ -8,6 +8,7 @@ import {
 import Login from "./views/Login";
 import Home from "./views/Home";
 import QRScanner from "./views/QRScanner";
+import ReactLoading from "react-loading";
 
 function App() {
   const [user, setUser] = React.useState(null);
@@ -32,7 +33,11 @@ function App() {
   }, []);
 
   if (user === null) {
-    return <div>Loading...</div>;
+    return (
+      <div class="loading-bars">
+        <ReactLoading type="spin" color="teal" />
+      </div>
+    );
   }
 
   return (
