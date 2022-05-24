@@ -30,7 +30,7 @@ router.post("/qrscanned", async (req, res) => {
 
   const { data, error } = await supabase
     .from("users")
-    .select("google_id, present, name")
+    .select("google_id, present, name, id")
     .match({ google_id: req.body.id });
 
   if (error) {
@@ -61,14 +61,28 @@ router.post("/qrscanned", async (req, res) => {
     ? data[0].name + " Signed In"
     : data[0].name + " Signed Out";
 
-  const { dat, err } = await supabase
+  const { data2, error2 } = await supabase
     .from("users")
     .update({ present: updatedValue })
     .match({ google_id: req.body.id });
 
-  if (err) {
+  if (error2) {
     res.json({
       message: "Error: updating user",
+      success: false,
+    });
+    return;
+  }
+
+  let { data3, error3 } = await supabase.from("attendance").insert({
+    action: updatedValue ? "Signed In" : "Signed Out",
+    user_id: data[0].id,
+    name: data[0].name,
+  });
+
+  if (error3) {
+    res.json({
+      message: "Error: inserting attendance",
       success: false,
     });
     return;
