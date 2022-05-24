@@ -102,6 +102,7 @@
 
 .attendance-tag {
   margin-top: 1.5%;
+  cursor: pointer;
 }
 
 .qr-title {
@@ -130,4 +131,26 @@
 #qr-msg {
   color: #5b5aff;
   font-weight: 800;
+}
+
+@keyframes spinner {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.loading-span::after {
+  animation: 1.5s linear infinite spinner;
+  animation-play-state: inherit;
+  border: solid 5px #fafafa;
+  border-bottom-color: rgb(98, 184, 184);
+  border-radius: 50%;
+  content: "";
+  height: 20px;
+  width: 20px;
+  display: block;
+  margin-left: 5px;
+  will-change: transform;
 }

@@ -3,6 +3,81 @@ import supabase from "../supabase-setup";
 
 const router = express.Router();
 
+async function updateUserPresent(google_id, presentValue) {
+  const { data, error } = await supabase
+    .from("users")
+    .update({ present: presentValue })
+    .match({ google_id: google_id });
+
+  if (error) {
+    return false;
+  }
+  return true;
+}
+
+async function insertNewAttendanceLog(user, action) {
+  let { data, error } = await supabase.from("attendance").insert({
+    action: action,
+    user_id: user.id,
+    name: user.name,
+  });
+
+  if (error) {
+    return false;
+  }
+  return true;
+}
+
+async function calculateHours(user) {}
+
+router.post("/adminPresentToggle", async (req, res) => {
+  if (!req.isAuthenticated || !req.isAuthenticated()) {
+    res.sendStatus(404);
+    return;
+  }
+
+  const { data, error } = await supabase.from("users");
+
+  var user = data.find((user) => user.google_id === req.body.id);
+
+  if (user && user.admin) {
+    if (!(await updateUserPresent(req.body.id, !user.present))) {
+      res.json({
+        message: "Error: updating user",
+        success: false,
+      });
+      return;
+    }
+
+    if (
+      !(await insertNewAttendanceLog(
+        user,
+        !user.present ? "Signed In" : "Signed Out"
+      ))
+    ) {
+      res.json({
+        message: "Error: inserting attendance",
+        success: false,
+      });
+      return;
+    }
+    if (!user.present === false) {
+      calculateHours(user);
+    }
+    res.json({
+      message: "Success",
+      success: true,
+    });
+  } else {
+    res.json({
+      message: "Not admin",
+      success: false,
+    });
+  }
+
+  return;
+});
+
 router.post("/updateUserDeptGrade", async (req, res) => {
   if (!req.isAuthenticated || !req.isAuthenticated()) {
     res.sendStatus(404);
@@ -28,12 +103,11 @@ router.post("/qrscanned", async (req, res) => {
     return;
   }
 
-  const { data, error } = await supabase
-    .from("users")
-    .select("google_id, present, name, id")
-    .match({ google_id: req.body.id });
+  const { data, error } = await supabase.from("users");
 
-  if (error) {
+  var user = data.find((user) => user.google_id === req.body.id);
+
+  if (!user) {
     res.json({
       message: "Error: retrieving user",
       success: false,
@@ -41,32 +115,13 @@ router.post("/qrscanned", async (req, res) => {
     return;
   }
 
-  if (data.length > 1) {
-    res.json({
-      message: "Error: too many users with same google_id",
-      success: false,
-    });
-    return;
-  }
-
-  let updatedValue = data[0].present;
-
-  if (data[0].present) {
-    updatedValue = false;
-  } else {
-    updatedValue = true;
-  }
+  let updatedValue = !user.present;
 
   let message = updatedValue
-    ? data[0].name + " Signed In"
-    : data[0].name + " Signed Out";
+    ? user.name + " Signed In"
+    : user.name + " Signed Out";
 
-  const { data2, error2 } = await supabase
-    .from("users")
-    .update({ present: updatedValue })
-    .match({ google_id: req.body.id });
-
-  if (error2) {
+  if (!(await updateUserPresent(req.body.id, updatedValue))) {
     res.json({
       message: "Error: updating user",
       success: false,
@@ -74,18 +129,21 @@ router.post("/qrscanned", async (req, res) => {
     return;
   }
 
-  let { data3, error3 } = await supabase.from("attendance").insert({
-    action: updatedValue ? "Signed In" : "Signed Out",
-    user_id: data[0].id,
-    name: data[0].name,
-  });
-
-  if (error3) {
+  if (
+    !(await insertNewAttendanceLog(
+      user,
+      updatedValue ? "Signed In" : "Signed Out"
+    ))
+  ) {
     res.json({
       message: "Error: inserting attendance",
       success: false,
     });
     return;
+  }
+
+  if (updatedValue === false) {
+    calculateHours(user);
   }
 
   res.json({

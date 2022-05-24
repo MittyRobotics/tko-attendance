@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import SettingsModal from "./components/SettingsModal";
 import QRModal from "./components/QRModal";
 import RequestModal from "./components/RequestModal";
@@ -10,14 +9,11 @@ import "hover.css";
 import "./Home.css";
 
 function Home({ user }) {
-  // console.log(user);
-
   const [signoutClicked, setSignoutClicked] = useState(false);
   const [settingsClicked, setSettingsClicked] = useState(false);
   const [qrClicked, setQrClicked] = useState(false);
   const [requestClicked, setRequestClicked] = useState(false);
-
-  const navigate = useNavigate();
+  const [adminPresentTagClicked, setAdminPresentTagClicked] = useState(false);
 
   const signout = () => {
     setSignoutClicked(true);
@@ -60,6 +56,31 @@ function Home({ user }) {
     </div>
   );
 
+  const adminToggle = () => {
+    setAdminPresentTagClicked(true);
+    if (user.admin) {
+      fetch("/adminPresentToggle", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true,
+        },
+        body: JSON.stringify({
+          id: user.google_id,
+        }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            setAdminPresentTagClicked(false);
+            window.location.reload();
+          }
+        });
+    }
+  };
+
   return (
     <div>
       <section className="hero-pattern">
@@ -89,7 +110,13 @@ function Home({ user }) {
           <h3 className="department-grade">
             {user.department} Department | Grade {user.current_grade}
           </h3>
-          <span className="tag is-info attendance-tag">
+          <span
+            className={
+              "tag is-info attendance-tag" +
+              (adminPresentTagClicked ? " loading-span" : "")
+            }
+            onClick={() => adminToggle()}
+          >
             {user.present ? "Signed In" : "Signed Out"}
           </span>
         </div>
