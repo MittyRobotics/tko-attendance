@@ -1,3 +1,5 @@
+import { faCircleXmark } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 import QRCode from "react-qr-code";
 
@@ -20,7 +22,7 @@ function QRModal({ user, qrClicked, setQrClicked }) {
             className="button is-link is-light"
             onClick={() => setQrClicked(false)}
           >
-            Close
+            <FontAwesomeIcon icon={faCircleXmark} /> Close
           </button>
         </div>
       </div>

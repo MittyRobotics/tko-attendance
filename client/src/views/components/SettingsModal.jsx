@@ -1,3 +1,5 @@
+import { faFloppyDisk } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useState } from "react";
 
 function SettingsModal({ user, settingsClicked, setSettingsClicked }) {
@@ -89,7 +91,7 @@ function SettingsModal({ user, settingsClicked, setSettingsClicked }) {
             className="button is-primary is-light save-btn"
             onClick={() => modifySettings()}
           >
-            Save
+            <FontAwesomeIcon icon={faFloppyDisk} /> Save
           </button>
         </div>
       </div>

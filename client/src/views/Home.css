@@ -70,6 +70,14 @@
   padding: 2%;
 }
 
+.modal-desc {
+  font-family: "Inter", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: black;
+  padding: 2%;
+}
+
 .box {
   text-align: center;
   border: 5px solid teal;
@@ -153,4 +161,16 @@
   display: block;
   margin-left: 5px;
   will-change: transform;
+}
+
+.button svg {
+  margin-right: 5px;
+}
+
+.checkbox input {
+  margin-right: 10px;
+}
+
+.checkbox {
+  font-family: "Inter", sans-serif;
 }

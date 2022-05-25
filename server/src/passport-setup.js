@@ -1,4 +1,3 @@
-import e from "express";
 import supabase from "./supabase-setup";
 
 const passport = require("passport");

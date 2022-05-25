@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import QrReader from "react-qr-scanner";
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleLeft } from "@fortawesome/free-solid-svg-icons";
+
 import "bulma/css/bulma.min.css";
 import "animate.css";
 import "hover.css";
 import "./Home.css";
 
-function QRScannerComponent({ user }) {
+function QRScanPage({ user }) {
   const blinkSuccess = () => {
     document.getElementById("qr-wrapper").classList.add("blink");
     setTimeout(() => {
@@ -54,7 +57,7 @@ function QRScannerComponent({ user }) {
             className={"button is-warning animate__animated animate__fadeIn"}
             onClick={() => (window.location = "/")}
           >
-            Back
+            <FontAwesomeIcon icon={faCircleLeft} /> Back
           </button>
         </div>
         <div className="qr-title container block">
@@ -84,4 +87,4 @@ function QRScannerComponent({ user }) {
   );
 }
 
-export default QRScannerComponent;
+export default QRScanPage;

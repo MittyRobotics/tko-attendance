@@ -1,3 +1,5 @@
+import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useState } from "react";
 
 function RequestModal({ user, requestClicked, setRequestClicked }) {
@@ -22,6 +24,7 @@ function RequestModal({ user, requestClicked, setRequestClicked }) {
 
   const handleSubmit = () => {
     setSubmitClicked(true);
+    setMsg("");
     fetch(process.env.REACT_APP_SERVER_URL + "/request", {
       method: "POST",
       credentials: "include",
@@ -77,7 +80,7 @@ function RequestModal({ user, requestClicked, setRequestClicked }) {
             }
             onClick={() => handleSubmit()}
           >
-            Request
+            <FontAwesomeIcon icon={faPaperPlane} /> Request
           </button>
           <h1
             className="req-msg"

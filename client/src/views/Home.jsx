@@ -3,10 +3,23 @@ import SettingsModal from "./components/SettingsModal";
 import QRModal from "./components/QRModal";
 import RequestModal from "./components/RequestModal";
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faQrcode,
+  faArrowRightToBracket,
+  faTrophy,
+  faClipboardUser,
+  faDatabase,
+  faBolt,
+  faGear,
+  faArrowRightFromBracket,
+} from "@fortawesome/free-solid-svg-icons";
+
 import "bulma/css/bulma.min.css";
 import "animate.css";
 import "hover.css";
 import "./Home.css";
+import SuperSignoutModal from "./components/SuperSignoutModal";
 
 function Home({ user }) {
   const [signoutClicked, setSignoutClicked] = useState(false);
@@ -14,6 +27,7 @@ function Home({ user }) {
   const [qrClicked, setQrClicked] = useState(false);
   const [requestClicked, setRequestClicked] = useState(false);
   const [adminPresentTagClicked, setAdminPresentTagClicked] = useState(false);
+  const [ssmClicked, setSsmClicked] = useState(false);
 
   const signout = () => {
     setSignoutClicked(true);
@@ -32,24 +46,36 @@ function Home({ user }) {
           className="button is-warning block action-btn hvr-grow"
           onClick={() => (window.location = "/qrscan")}
         >
-          QR Scanner
+          <FontAwesomeIcon icon={faQrcode} /> QR Scanner
         </button>
         <br></br>
-        <button className="button is-warning block action-btn hvr-grow">
-          Sign In/Out Requests
+        <button
+          className="button is-warning block action-btn hvr-grow"
+          onClick={() => (window.location = "/requests")}
+        >
+          <FontAwesomeIcon icon={faArrowRightToBracket} /> Sign In/Out Requests
         </button>
         <br></br>
-        <button className="button is-info block action-btn hvr-grow">
-          Student Roster
+        <button
+          className="button is-link block action-btn hvr-grow"
+          onClick={() => (window.location = "/roster")}
+        >
+          <FontAwesomeIcon icon={faClipboardUser} /> Student Roster
         </button>
         <br></br>
-        <button className="button is-info block action-btn hvr-grow">
-          Attendance Data
+        <button
+          className="button is-link block action-btn hvr-grow"
+          onClick={() => (window.location = "/attendance")}
+        >
+          <FontAwesomeIcon icon={faDatabase} /> Attendance Data
         </button>
         <br></br>
         <br></br>
-        <button className="button is-danger is-light block action-btn hvr-grow">
-          Signout All Students
+        <button
+          className="button is-danger is-light block action-btn hvr-grow"
+          onClick={() => setSsmClicked(true)}
+        >
+          <FontAwesomeIcon icon={faBolt} /> Signout All Students
         </button>
         <br></br>
       </div>
@@ -57,8 +83,8 @@ function Home({ user }) {
   );
 
   const adminToggle = () => {
-    setAdminPresentTagClicked(true);
     if (user.admin) {
+      setAdminPresentTagClicked(true);
       fetch("/adminPresentToggle", {
         method: "POST",
         credentials: "include",
@@ -89,7 +115,7 @@ function Home({ user }) {
             className="button is-link is-light settings-btn animate__animated animate__fadeIn"
             onClick={() => setSettingsClicked(true)}
           >
-            Settings
+            <FontAwesomeIcon icon={faGear} /> Settings
           </button>
           <button
             className={
@@ -98,7 +124,7 @@ function Home({ user }) {
             }
             onClick={() => signout()}
           >
-            Log Out
+            <FontAwesomeIcon icon={faArrowRightFromBracket} /> Log Out
           </button>
         </div>
         <div className="container user-info animate__animated animate__fadeInUp">
@@ -129,16 +155,20 @@ function Home({ user }) {
                 className="button is-warning block action-btn hvr-grow"
                 onClick={() => setQrClicked(true)}
               >
-                QR Code
+                <FontAwesomeIcon icon={faQrcode} /> QR Code
               </button>
               <br></br>
               <button
                 className="button is-warning block action-btn hvr-grow"
                 onClick={() => setRequestClicked(true)}
               >
-                Request Sign In/Out
+                <FontAwesomeIcon icon={faArrowRightToBracket} /> Request Sign
+                In/Out
               </button>
               <br></br>
+              <button className="button is-link block action-btn hvr-grow">
+                <FontAwesomeIcon icon={faTrophy} /> Achievements
+              </button>
             </div>
           </div>
           {user.admin ? adminActions : null}
@@ -157,6 +187,11 @@ function Home({ user }) {
           user={user}
           requestClicked={requestClicked}
           setRequestClicked={setRequestClicked}
+        />
+        <SuperSignoutModal
+          user={user}
+          ssmClicked={ssmClicked}
+          setSsmClicked={setSsmClicked}
         />
       </section>
     </div>

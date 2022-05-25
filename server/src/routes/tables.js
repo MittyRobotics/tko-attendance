@@ -28,8 +28,6 @@ async function insertNewAttendanceLog(user, action) {
   return true;
 }
 
-async function calculateHours(user) {}
-
 router.post("/adminPresentToggle", async (req, res) => {
   if (!req.isAuthenticated || !req.isAuthenticated()) {
     res.sendStatus(404);
@@ -60,9 +58,6 @@ router.post("/adminPresentToggle", async (req, res) => {
         success: false,
       });
       return;
-    }
-    if (!user.present === false) {
-      calculateHours(user);
     }
     res.json({
       message: "Success",
@@ -142,10 +137,6 @@ router.post("/qrscanned", async (req, res) => {
     return;
   }
 
-  if (updatedValue === false) {
-    calculateHours(user);
-  }
-
   res.json({
     message: message,
     success: true,
@@ -220,8 +211,6 @@ router.post("/request", async (req, res) => {
     "," +
     utc_timestamp.toISOString();
 
-  console.log(updateText);
-
   const { data: resp, err } = await supabase
     .from("users")
     .update({ requested_action: updateText })
@@ -235,6 +224,54 @@ router.post("/request", async (req, res) => {
   res.status(200).json({
     success: true,
     message: "Request Successfully Sent",
+  });
+});
+
+router.post("/signoutAll", async (req, res) => {
+  if (!req.isAuthenticated || !req.isAuthenticated()) {
+    res.sendStatus(404);
+    return;
+  }
+
+  if (!req.user.admin) {
+    res.sendStatus(404);
+    return;
+  }
+
+  const { data, error } = await supabase.from("users").select();
+
+  if (error) {
+    console.log(error);
+    res.json({
+      message: "Error: retrieving users",
+      success: false,
+    });
+    return;
+  }
+
+  for (var i = 0; i < data.length; i++) {
+    if (data[i].present) {
+      if (!(await updateUserPresent(data[i].google_id, false))) {
+        res.json({
+          message: "Error: updating user " + i,
+          success: false,
+        });
+        return;
+      }
+
+      if (!(await insertNewAttendanceLog(data[i], "Signed Out"))) {
+        res.json({
+          message: "Error: inserting attendance for user " + i,
+          success: false,
+        });
+        return;
+      }
+    }
+  }
+
+  res.json({
+    message: "Success",
+    success: true,
   });
 });
 
