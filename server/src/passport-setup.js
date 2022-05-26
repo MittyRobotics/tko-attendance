@@ -7,11 +7,11 @@ passport.serializeUser((user, done) => {
   done(null, user.id);
 });
 
-passport.deserializeUser(async (id, done) => {
+passport.deserializeUser(async (serializedUserId, done) => {
   let { data: users, error } = await supabase.from("users");
-  let user = users.find((user) => user.id === id);
-  if (user) {
-    done(null, user);
+  let foundUser = users.find((user) => user.id === serializedUserId);
+  if (foundUser) {
+    done(null, foundUser);
   } else {
     done(null, false);
   }
@@ -29,7 +29,7 @@ passport.use(
       let { data: users, error } = await supabase.from("users");
 
       if (error) {
-        console.log(error);
+        console.log(error.messsage);
         return cb(error, null);
       }
 
@@ -47,10 +47,10 @@ passport.use(
         });
 
       if (newUserError) {
-        return cb(newUserError);
+        return cb(newUserError.message);
       }
 
-      return cb(null, newUser);
+      return cb(null, newUser[0]);
     }
   )
 );

@@ -33,7 +33,7 @@ function SuperSignoutModal({ user, ssmClicked, setSsmClicked }) {
           if (data.success) {
             closeModal();
           } else {
-            alert(data.message);
+            alert("supersignout modal: " + data.message);
             closeModal();
           }
         });
@@ -47,8 +47,11 @@ function SuperSignoutModal({ user, ssmClicked, setSsmClicked }) {
         <div className="box">
           <h1 className="modal-title">Are You Sure?</h1>
           <h1 className="modal-desc">
-            Signing out all students is a destructive, large-payload action.
-            Depending on the number of students, it may take a few minutes.
+            Signing out all students is a{" "}
+            <span className="destructive">non-reversible</span>,{" "}
+            <span className="destructive">resource-intensive</span> action.
+            Depending on the number of students, it may take a few minutes to
+            complete.
           </h1>
           <label class="checkbox">
             <input

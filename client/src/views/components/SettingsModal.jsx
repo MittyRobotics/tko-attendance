@@ -22,7 +22,7 @@ function SettingsModal({ user, settingsClicked, setSettingsClicked }) {
       finalGrade = parseInt(grade.split(" ")[0]);
     }
 
-    fetch(process.env.REACT_APP_SERVER_URL + "/updateUserDeptGrade", {
+    fetch(process.env.REACT_APP_SERVER_URL + "/updateUser", {
       method: "POST",
       credentials: "include",
       headers: {
@@ -32,15 +32,17 @@ function SettingsModal({ user, settingsClicked, setSettingsClicked }) {
       },
       body: JSON.stringify({
         department: finalDept,
-        grade: finalGrade,
-        id: user.id,
+        current_grade: finalGrade,
       }),
-    }).then((response) => {
-      if (response.status === 200) {
-        window.location.reload();
-      }
-      throw new Error("failed to update user data");
-    });
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          window.location.reload();
+        } else {
+          alert("settings modal: " + data.message);
+        }
+      });
   };
 
   const handleDeptChange = (event) => {

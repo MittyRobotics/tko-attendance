@@ -146,7 +146,7 @@ function Home({ user }) {
             {user.present ? "Signed In" : "Signed Out"}
           </span>
         </div>
-        <div className="columns animate__animated animate__fadeInUp">
+        <div className="columns home-actions animate__animated animate__fadeInUp">
           <div className="column">
             <div className="actions-card">
               <h2 className="actions-title">Student</h2>

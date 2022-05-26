@@ -21,7 +21,7 @@ class Login extends React.Component {
   render() {
     return (
       <div>
-        <section className="hero-pattern">
+        <section className="login-pat">
           <div className="login-img">
             <img src={require("../img/tko_logo.png")} alt="TKO Logo" />
           </div>

@@ -28,6 +28,156 @@ async function insertNewAttendanceLog(user, action) {
   return true;
 }
 
+router.post("/updateUser", async (req, res) => {
+  if (!req.isAuthenticated || !req.isAuthenticated()) {
+    res.sendStatus(404);
+    return;
+  }
+
+  let updateBody = {};
+
+  if (req.body.department) {
+    updateBody.department = req.body.department;
+  }
+  if (req.body.admin) {
+    if (req.user.admin) {
+      updateBody.admin = req.body.admin;
+    }
+  }
+  if (req.body.current_grade) {
+    updateBody.current_grade = req.body.current_grade;
+  }
+  if (req.body.present) {
+    updateBody.present = req.body.present;
+  }
+  if (req.body.total_hours) {
+    if (req.user.admin) {
+      updateBody.total_hours = req.body.total_hours;
+    }
+  }
+  if (req.body.requested_action) {
+    if (req.user.admin) {
+      updateBody.requested_action = req.body.requested_action;
+    }
+  }
+
+  const { data, error } = await supabase
+    .from("users")
+    .update(updateBody)
+    .match({ id: req.body.id });
+
+  if (error) {
+    res.json({
+      message: error.message,
+      success: false,
+    });
+    return;
+  }
+
+  if (
+    !(await insertNewAttendanceLog(
+      data[0],
+      data[0].present ? "Signed In" : "Signed Out"
+    ))
+  ) {
+    res.json({
+      message: "Error: inserting attendance",
+      success: false,
+    });
+    return;
+  }
+
+  res.json({
+    message: "Success",
+    success: true,
+  });
+});
+
+router.get("/userList", async (req, res) => {
+  if (!req.isAuthenticated || !req.isAuthenticated()) {
+    res.sendStatus(404);
+    return;
+  }
+
+  if (!req.user.admin) {
+    res.json({
+      error: "Error: not admin",
+      success: false,
+    });
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from("users")
+    .select("id, name, department, admin, current_grade, present, total_hours")
+    .order("id", { ascending: true });
+
+  if (error) {
+    res.json({
+      error: "Error: " + error,
+      success: false,
+    });
+    return;
+  }
+
+  res.json({
+    userList: data,
+    message: "Success",
+    success: true,
+  });
+});
+
+router.get("/allAttendanceRequests", async (req, res) => {
+  if (!req.isAuthenticated || !req.isAuthenticated()) {
+    res.sendStatus(404);
+    return;
+  }
+
+  if (!req.user.admin) {
+    res.json({
+      error: "Error: not admin",
+      success: false,
+    });
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from("users")
+    .select("id, name, department, requested_action")
+    .not("requested_action", "eq", "none")
+    .order("id", { ascending: true });
+
+  if (error) {
+    res.json({
+      error: "Error: retrieving requests data",
+      success: false,
+    });
+    return;
+  }
+
+  let signin = [];
+  let signout = [];
+
+  for (let i = 0; i < data.length; i++) {
+    if (data[i].requested_action.includes("SignIn")) {
+      signin.push(data[i]);
+    } else {
+      signout.push(data[i]);
+    }
+  }
+
+  let finalData = {
+    signinrequests: signin,
+    signoutrequests: signout,
+  };
+
+  res.json({
+    requests: finalData,
+    message: "Success",
+    success: true,
+  });
+});
+
 router.post("/adminPresentToggle", async (req, res) => {
   if (!req.isAuthenticated || !req.isAuthenticated()) {
     res.sendStatus(404);
@@ -71,25 +221,6 @@ router.post("/adminPresentToggle", async (req, res) => {
   }
 
   return;
-});
-
-router.post("/updateUserDeptGrade", async (req, res) => {
-  if (!req.isAuthenticated || !req.isAuthenticated()) {
-    res.sendStatus(404);
-    return;
-  }
-
-  const { data, error } = await supabase
-    .from("users")
-    .update({ department: req.body.department, current_grade: req.body.grade })
-    .match({ id: req.body.id });
-
-  if (error) {
-    res.sendStatus(500);
-    return;
-  }
-
-  res.sendStatus(200);
 });
 
 router.post("/qrscanned", async (req, res) => {
