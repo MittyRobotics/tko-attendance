@@ -36,25 +36,73 @@ router.post("/updateUserBulk", async (req, res) => {
 
   const { data, error } = await supabase
     .from("users")
-    // .update({ requested_action: "none" })
+    .update({ requested_action: "none" })
     .select("id, requested_action")
     .textSearch("requested_action", req.body.type, {
       config: "english",
     });
 
-  console.log(req.body.type, data);
-
   if (error) {
-    console.log(error, data);
     res.json({
       message: error.message,
       success: false,
     });
     return;
   }
-  
+
   res.json({
     message: "success",
+    success: true,
+  });
+});
+
+router.post("/updateAttendanceBulk", async (req, res) => {
+  if (!req.isAuthenticated || !req.isAuthenticated()) {
+    res.sendStatus(404);
+    return;
+  }
+
+  let actionCheck = req.body.type === "Signed In" ? "SignIn" : "SignOut";
+  let presentCheck = req.body.type === "Signed In" ? true : false;
+
+  const { data, error } = await supabase
+    .from("users")
+    .update({ requested_action: "none", present: presentCheck })
+    .select("present, requested_action")
+    .textSearch("requested_action", actionCheck, {
+      config: "english",
+    });
+
+  if (error) {
+    res.json({
+      message: error.message,
+      success: false,
+    });
+    return;
+  }
+
+  for (let i = 0; i < req.body.data.length; i++) {
+    let updateBody = {};
+    updateBody.action = req.body.type;
+    updateBody.user_id = req.body.data[i].id;
+    updateBody.name = req.body.data[i].name;
+    updateBody.action_logged_at =
+      req.body.data[i].requested_action.split(",")[1];
+
+    const { data, error } = await supabase
+      .from("attendance")
+      .insert(updateBody);
+
+    if (error) {
+      res.json({
+        message: error.message,
+        success: false,
+      });
+      return;
+    }
+  }
+  res.json({
+    message: "Success",
     success: true,
   });
 });

@@ -54,7 +54,7 @@ function RequestsPage() {
           "Access-Control-Allow-Credentials": true,
         },
         body: JSON.stringify({
-          type: type.split(" ").join(""),
+          type: type,
         }),
       })
         .then((res) => res.json())
@@ -76,6 +76,13 @@ function RequestsPage() {
           "Content-Type": "application/json",
           "Access-Control-Allow-Credentials": true,
         },
+        body: JSON.stringify({
+          type: type,
+          data:
+            type === "Signed In"
+              ? requests.signinrequests
+              : requests.signoutrequests,
+        }),
       })
         .then((res) => res.json())
         .then((data) => {
@@ -205,7 +212,7 @@ function RequestsPage() {
             }
             onClick={() =>
               sendBulkRequest(
-                type === "Sign In" ? "Signed In" : "Signed Out",
+                type === "Sign In" ? "SignIn" : "SignOut",
                 "deny",
                 "d-all" + (type === "Sign In" ? "s" : "o")
               )
