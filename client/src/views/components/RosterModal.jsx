@@ -67,7 +67,7 @@ function RosterModal({ getUserList, rosterClicked, setRosterClicked }) {
             for <span className="identify">{rosterClicked[2]}</span>
           </h1>
           <br></br>
-          <div class="select is-link">
+          <div className="select is-link">
             <select onChange={handleSelectChange}>
               {rosterClicked[3].map((option) => {
                 return <option key={option}>{option}</option>;

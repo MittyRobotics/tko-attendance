@@ -19,7 +19,7 @@ function SuperSignoutModal({ user, ssmClicked, setSsmClicked }) {
   const signOutAll = () => {
     if (user.admin) {
       setLoading(true);
-      fetch("/signoutAll", {
+      fetch(process.env.REACT_APP_SERVER_URL + "/signoutAll", {
         method: "POST",
         credentials: "include",
         headers: {
@@ -53,7 +53,7 @@ function SuperSignoutModal({ user, ssmClicked, setSsmClicked }) {
             Depending on the number of students, it may take a few minutes to
             complete.
           </h1>
-          <label class="checkbox">
+          <label className="checkbox">
             <input
               type="checkbox"
               checked={checkboxSelected}

@@ -3,6 +3,10 @@ import SettingsModal from "./components/SettingsModal";
 import QRModal from "./components/QRModal";
 import RequestModal from "./components/RequestModal";
 
+import Tippy from "@tippyjs/react";
+import "tippy.js/dist/tippy.css";
+import "tippy.js/animations/shift-toward.css";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faQrcode,
@@ -85,7 +89,7 @@ function Home({ user }) {
   const adminToggle = () => {
     if (user.admin) {
       setAdminPresentTagClicked(true);
-      fetch("/adminPresentToggle", {
+      fetch(process.env.REACT_APP_SERVER_URL + "/adminPresentToggle", {
         method: "POST",
         credentials: "include",
         headers: {
@@ -162,13 +166,26 @@ function Home({ user }) {
                 className="button is-warning block action-btn hvr-grow"
                 onClick={() => setRequestClicked(true)}
               >
-                <FontAwesomeIcon icon={faArrowRightToBracket} /> Request Sign
-                In/Out
+                <FontAwesomeIcon
+                  icon={
+                    user.present
+                      ? faArrowRightFromBracket
+                      : faArrowRightToBracket
+                  }
+                />{" "}
+                Request {user.present ? "Sign Out" : "Sign In"}
               </button>
               <br></br>
-              <button className="button is-link block action-btn hvr-grow">
-                <FontAwesomeIcon icon={faTrophy} /> Achievements
-              </button>
+              <Tippy
+                content="Under Construction ™ ® ©"
+                animation="shift-toward"
+              >
+                <div>
+                  <button className="button is-link block action-btn" disabled>
+                    <FontAwesomeIcon icon={faTrophy} /> Achievements
+                  </button>
+                </div>
+              </Tippy>
             </div>
           </div>
           {user.admin ? adminActions : null}

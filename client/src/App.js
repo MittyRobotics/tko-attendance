@@ -37,7 +37,7 @@ function App() {
 
   if (user === null) {
     return (
-      <div class="loading-bars">
+      <div className="loading-bars">
         <ReactLoading type="spin" color="teal" />
       </div>
     );

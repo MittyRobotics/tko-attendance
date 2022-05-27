@@ -181,11 +181,11 @@ function RequestsPage() {
 
   const columnBuilder = (type) => (
     <div className="column requests-col is-half">
-      <div class="columns bulk-cols">
-        <div class="column bulk-col1">
+      <div className="columns bulk-cols">
+        <div className="column bulk-col1">
           <span className="tag is-warning td-bold">{type} Requests</span>
         </div>
-        <div class="column bulk-col2">
+        <div className="column bulk-col2">
           <button
             className={
               "button is-success btn-grant" +
@@ -222,12 +222,12 @@ function RequestsPage() {
           </button>
         </div>
       </div>
-      <div class="notification is-link is-light">
+      <div className="notification is-link is-light">
         {(type === "Sign In"
           ? requests.signinrequests
           : requests.signoutrequests
         ).length === 0 ? (
-          <div class="no-requests">
+          <div className="no-requests">
             <button className="button is-link">
               <FontAwesomeIcon icon={faChampagneGlasses} /> No Requests!
             </button>
@@ -237,17 +237,17 @@ function RequestsPage() {
             ? requests.signinrequests
             : requests.signoutrequests
           ).map((request) => (
-            <article class="message is-link" key={request.id}>
-              <div class="message-body">
+            <article className="message is-link" key={request.id}>
+              <div className="message-body">
                 <div className="columns mapped-cols">
                   <div className="column student-desc">
                     <h1 className="request-title">{request.name}</h1>
-                    <span class="tag is-link">
+                    <span className="tag is-link">
                       {request.department === "No"
                         ? "No Dept."
                         : request.department}
                     </span>
-                    <span class="tag is-link">
+                    <span className="tag is-link">
                       {parseTimestamp(request.requested_action.split(",")[1])}
                     </span>
                   </div>
@@ -301,7 +301,7 @@ function RequestsPage() {
       {columnBuilder("Sign In")} {columnBuilder("Sign Out")}
     </div>
   ) : (
-    <div class="loading-wrapper">
+    <div className="loading-wrapper">
       <ReactLoading type="bars" color="teal" />
     </div>
   );

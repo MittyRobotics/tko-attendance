@@ -16,7 +16,7 @@ function RosterPage() {
   const [rosterClicked, setRosterClicked] = useState([false, "", "", [""]]);
 
   const getUserList = () => {
-    fetch("/userList", {
+    fetch(process.env.REACT_APP_SERVER_URL + "/userList", {
       method: "GET",
       credentials: "include",
       headers: {
@@ -40,8 +40,8 @@ function RosterPage() {
   }, []);
 
   const tableElement = (
-    <div class="table-container">
-      <table class="table is-fullwidth">
+    <div className="table-container">
+      <table className="table is-fullwidth">
         <thead>
           <tr>
             <th>ID</th>
@@ -167,7 +167,7 @@ function RosterPage() {
           {userList.length > 0 ? (
             tableElement
           ) : (
-            <div class="loading-wrapper">
+            <div className="loading-wrapper">
               <ReactLoading type="bars" color="teal" />
             </div>
           )}

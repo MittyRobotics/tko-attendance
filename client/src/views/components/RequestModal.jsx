@@ -17,8 +17,10 @@ function RequestModal({ user, requestClicked, setRequestClicked }) {
   const closeWindow = () => {
     setMsg("");
     setMsgSuccess(true);
-    setRequest("Sign In");
-    document.getElementById("select-request").value = "Sign In";
+    setRequest(user.present ? "Sign Out" : "Sign In");
+    document.getElementById("select-request").value = user.present
+      ? "Sign Out"
+      : "Sign In";
     setRequestClicked(false);
   };
 
@@ -63,11 +65,25 @@ function RequestModal({ user, requestClicked, setRequestClicked }) {
       <div className="modal-background" onClick={() => closeWindow()}></div>
       <div className="modal-content">
         <div className="box">
-          <h1 className="modal-title">Request to Sign In/Out</h1>
+          <h1 className="modal-title">
+            Request to {user.present ? "Sign Out" : "Sign In"}?
+          </h1>
+          <br></br>
+          <h1 className="modal-desc">
+            You may request to{" "}
+            <span className="destructive">
+              {user.present ? "sign out" : "sign in"}
+            </span>{" "}
+            of a meeting here.
+          </h1>
           <div className="select is-primary">
             <select id="select-request" onChange={handleRequestChange}>
-              <option>Sign In</option>
-              <option>Sign Out</option>
+              {user.present ? (
+                <option>Sign Out</option>
+              ) : (
+                <option>Sign In</option>
+              )}
+
               <option>Cancel Current Request</option>
             </select>
           </div>
@@ -80,7 +96,7 @@ function RequestModal({ user, requestClicked, setRequestClicked }) {
             }
             onClick={() => handleSubmit()}
           >
-            <FontAwesomeIcon icon={faPaperPlane} /> Request
+            <FontAwesomeIcon icon={faPaperPlane} /> Send Request
           </button>
           <h1
             className="req-msg"

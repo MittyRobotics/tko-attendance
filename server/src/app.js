@@ -10,20 +10,37 @@ const cors = require("cors");
 const passport = require("passport");
 const authRoutes = require("./routes/auth");
 const indexRoutes = require("./routes/tables");
+const helmet = require("helmet");
 
 const cookieParser = require("cookie-parser");
 const passportSetup = require("./passport-setup");
 const logger = require("morgan");
 
+app.disable("x-powered-by");
 app.use(logger("dev"));
+app.use(helmet());
 
 app.use(
   cookieSession({
     name: "session",
     keys: [process.env["SESSION_SECRET"]],
     maxAge: 24 * 60 * 60 * 100,
+    cookie: {
+      secure: true,
+    },
   })
 );
+
+let setCache = function (req, res, next) {
+  if (req.method == "GET") {
+    res.set("Cache-control", `no-cache`);
+  } else {
+    res.set("Cache-control", `no-store`);
+  }
+  next();
+};
+
+app.use(setCache);
 
 app.use(cookieParser());
 
