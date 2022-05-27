@@ -3,13 +3,15 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useState } from "react";
 
 function RequestModal({ user, requestClicked, setRequestClicked }) {
-  const [request, setRequest] = useState("Sign In");
+  const [request, setRequest] = useState(user.present ? "Sign Out" : "Sign In");
   const [msg, setMsg] = useState("");
   const [msgSuccess, setMsgSuccess] = useState(true);
   const [submitClicked, setSubmitClicked] = useState(false);
 
   const handleRequestChange = (e) => {
     let { name, value } = e.target;
+
+    console.log(value);
 
     setRequest(value);
   };
@@ -56,6 +58,8 @@ function RequestModal({ user, requestClicked, setRequestClicked }) {
         setSubmitClicked(false);
       });
   };
+
+  console.log(request);
 
   return (
     <div
