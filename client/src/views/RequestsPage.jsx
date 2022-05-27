@@ -11,15 +11,16 @@ import {
   faChampagneGlasses,
   faCheck,
   faCircleLeft,
-  faSquareCheck,
   faX,
 } from "@fortawesome/free-solid-svg-icons";
 
-function RequestsPage({ user }) {
+function RequestsPage() {
   const [requests, setRequests] = useState(null);
 
+  const [buttonsLoading, setButtonsLoading] = useState({});
+
   const getRequests = () => {
-    fetch("/allAttendanceRequests", {
+    fetch(process.env.REACT_APP_SERVER_URL + "/allAttendanceRequests", {
       method: "GET",
       credentials: "include",
       headers: {
@@ -40,6 +41,113 @@ function RequestsPage({ user }) {
   };
 
   useEffect(() => getRequests(), []);
+
+  const sendBulkRequest = async (type, action, button_id) => {
+    setButtonsLoading({ ...buttonsLoading, [button_id]: true });
+    if (action === "deny") {
+      fetch(process.env.REACT_APP_SERVER_URL + "/updateUserBulk", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true,
+        },
+        body: JSON.stringify({
+          type: type.split(" ").join(""),
+        }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            setButtonsLoading({ ...buttonsLoading, [button_id]: false });
+            getRequests();
+          } else {
+            setButtonsLoading({ ...buttonsLoading, [button_id]: false });
+            alert("requests page: " + data.message);
+          }
+        });
+    } else {
+      fetch(process.env.REACT_APP_SERVER_URL + "/updateAttendanceBulk", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            setButtonsLoading({ ...buttonsLoading, [button_id]: false });
+            getRequests();
+          } else {
+            setButtonsLoading({ ...buttonsLoading, [button_id]: false });
+            alert("requests page: " + data.message);
+          }
+        });
+    }
+  };
+
+  const sendRequest = async (type, action, name, id, timestamp) => {
+    let b_id = action === "deny" ? "d" : "g";
+    b_id += id;
+    setButtonsLoading({ ...buttonsLoading, [b_id]: true });
+    if (action === "deny") {
+      fetch(process.env.REACT_APP_SERVER_URL + "/updateUser", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true,
+        },
+        body: JSON.stringify({
+          requested_action: "none",
+          id: id,
+        }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            setButtonsLoading({ ...buttonsLoading, [b_id]: false });
+            getRequests();
+            return;
+          } else {
+            setButtonsLoading({ ...buttonsLoading, [b_id]: false });
+            alert(data.message);
+          }
+        });
+    } else {
+      fetch(process.env.REACT_APP_SERVER_URL + "/updateAttendance", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true,
+        },
+        body: JSON.stringify({
+          action: type,
+          name: name,
+          timestamp: timestamp,
+          id: id,
+        }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            setButtonsLoading({ ...buttonsLoading, [b_id]: false });
+            getRequests();
+            return;
+          } else {
+            setButtonsLoading({ ...buttonsLoading, [b_id]: false });
+            alert(data.message);
+          }
+        });
+    }
+  };
 
   const parseTimestamp = (timestamp) => {
     const date = new Date(timestamp);
@@ -64,113 +172,126 @@ function RequestsPage({ user }) {
     );
   };
 
+  const columnBuilder = (type) => (
+    <div className="column requests-col is-half">
+      <div class="columns bulk-cols">
+        <div class="column bulk-col1">
+          <span className="tag is-warning td-bold">{type} Requests</span>
+        </div>
+        <div class="column bulk-col2">
+          <button
+            className={
+              "button is-success btn-grant" +
+              (buttonsLoading["g-all" + (type === "Sign In" ? "s" : "o")]
+                ? " is-loading"
+                : "")
+            }
+            onClick={() =>
+              sendBulkRequest(
+                type === "Sign In" ? "Signed In" : "Signed Out",
+                "grant",
+                "g-all" + (type === "Sign In" ? "s" : "o")
+              )
+            }
+          >
+            <FontAwesomeIcon icon={faCheck} /> Grant All
+          </button>
+          <button
+            className={
+              "button is-danger btn-deny" +
+              (buttonsLoading["d-all" + (type === "Sign In" ? "s" : "o")]
+                ? " is-loading"
+                : "")
+            }
+            onClick={() =>
+              sendBulkRequest(
+                type === "Sign In" ? "Signed In" : "Signed Out",
+                "deny",
+                "d-all" + (type === "Sign In" ? "s" : "o")
+              )
+            }
+          >
+            <FontAwesomeIcon icon={faX} /> Deny All
+          </button>
+        </div>
+      </div>
+      <div class="notification is-link is-light">
+        {(type === "Sign In"
+          ? requests.signinrequests
+          : requests.signoutrequests
+        ).length === 0 ? (
+          <div class="no-requests">
+            <button className="button is-link">
+              <FontAwesomeIcon icon={faChampagneGlasses} /> No Requests!
+            </button>
+          </div>
+        ) : (
+          (type === "Sign In"
+            ? requests.signinrequests
+            : requests.signoutrequests
+          ).map((request) => (
+            <article class="message is-link" key={request.id}>
+              <div class="message-body">
+                <div className="columns mapped-cols">
+                  <div className="column student-desc">
+                    <h1 className="request-title">{request.name}</h1>
+                    <span class="tag is-link">
+                      {request.department === "No"
+                        ? "No Dept."
+                        : request.department}
+                    </span>
+                    <span class="tag is-link">
+                      {parseTimestamp(request.requested_action.split(",")[1])}
+                    </span>
+                  </div>
+                  <div className="column btn-decisions">
+                    <button
+                      className={
+                        "button is-success btn-grant" +
+                        (buttonsLoading["g" + request.id] ? " is-loading" : "")
+                      }
+                      onClick={() =>
+                        sendRequest(
+                          type === "Sign In" ? "Signed In" : "Signed Out",
+                          "grant",
+                          request.name,
+                          request.id,
+                          request.requested_action.split(",")[1]
+                        )
+                      }
+                    >
+                      <FontAwesomeIcon icon={faCheck} /> Grant
+                    </button>
+                    <button
+                      className={
+                        "button is-danger btn-deny" +
+                        (buttonsLoading["d" + request.id] ? " is-loading" : "")
+                      }
+                      onClick={() =>
+                        sendRequest(
+                          "Denied",
+                          "deny",
+                          request.name,
+                          request.id,
+                          request.requested_action.split(",")[1]
+                        )
+                      }
+                    >
+                      <FontAwesomeIcon icon={faX} /> Deny
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </article>
+          ))
+        )}
+      </div>
+    </div>
+  );
+
   const columns = requests ? (
     <div className="columns requests-columns">
-      <div className="column requests-col is-half">
-        <div class="columns bulk-cols">
-          <div class="column bulk-col1">
-            <span className="tag is-warning td-bold">Sign In Requests</span>
-          </div>
-          <div class="column bulk-col2">
-            <button className="button is-success btn-grant">
-              <FontAwesomeIcon icon={faCheck} /> Grant All
-            </button>
-            <button className="button is-danger btn-deny">
-              <FontAwesomeIcon icon={faX} /> Deny All
-            </button>
-          </div>
-        </div>
-        <div class="notification is-link is-light">
-          {requests.signinrequests.length === 0 ? (
-            <div class="no-requests">
-              <button className="button is-link">
-                <FontAwesomeIcon icon={faChampagneGlasses} /> No Requests!
-              </button>
-            </div>
-          ) : (
-            requests.signinrequests.map((request) => (
-              <article class="message is-link" key={request.id}>
-                <div class="message-body">
-                  <div className="columns mapped-cols">
-                    <div className="column student-desc">
-                      <h1 className="request-title">{request.name}</h1>
-                      <span class="tag is-link">
-                        {request.department === "No"
-                          ? "No Dept."
-                          : request.department}
-                      </span>
-                      <span class="tag is-link">
-                        {parseTimestamp(request.requested_action.split(",")[1])}
-                      </span>
-                    </div>
-                    <div className="column btn-decisions">
-                      <button className="button is-success btn-grant">
-                        <FontAwesomeIcon icon={faCheck} /> Grant
-                      </button>
-                      <button className="button is-danger btn-deny">
-                        <FontAwesomeIcon icon={faX} /> Deny
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </article>
-            ))
-          )}
-        </div>
-      </div>
-      <div className="column requests-col is-half">
-        <div class="columns bulk-cols">
-          <div class="column bulk-col1">
-            <span className="tag is-warning td-bold">Sign Out Requests</span>
-          </div>
-          <div class="column bulk-col2">
-            <button className="button is-success btn-grant">
-              <FontAwesomeIcon icon={faCheck} /> Grant All
-            </button>
-            <button className="button is-danger btn-deny">
-              <FontAwesomeIcon icon={faX} /> Deny All
-            </button>
-          </div>
-        </div>
-
-        <div class="notification is-link is-light">
-          {requests.signoutrequests.length === 0 ? (
-            <div class="no-requests">
-              <button className="button is-link">
-                <FontAwesomeIcon icon={faChampagneGlasses} /> No Requests!
-              </button>
-            </div>
-          ) : (
-            requests.signoutrequests.map((request) => (
-              <article class="message is-link" key={request.id}>
-                <div class="message-body">
-                  <div className="columns mapped-cols">
-                    <div className="column student-desc">
-                      <h1 className="request-title">{request.name}</h1>
-                      <span class="tag is-link">
-                        {request.department === "No"
-                          ? "No Dept."
-                          : request.department}
-                      </span>
-                      <span class="tag is-link">
-                        {parseTimestamp(request.requested_action.split(",")[1])}
-                      </span>
-                    </div>
-                    <div className="column btn-decisions">
-                      <button className="button is-success btn-grant">
-                        <FontAwesomeIcon icon={faCheck} /> Grant
-                      </button>
-                      <button className="button is-danger btn-deny">
-                        <FontAwesomeIcon icon={faX} /> Deny
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </article>
-            ))
-          )}
-        </div>
-      </div>
+      {columnBuilder("Sign In")} {columnBuilder("Sign Out")}
     </div>
   ) : (
     <div class="loading-wrapper">

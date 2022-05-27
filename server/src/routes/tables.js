@@ -28,6 +28,37 @@ async function insertNewAttendanceLog(user, action) {
   return true;
 }
 
+router.post("/updateUserBulk", async (req, res) => {
+  if (!req.isAuthenticated || !req.isAuthenticated()) {
+    res.sendStatus(404);
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from("users")
+    // .update({ requested_action: "none" })
+    .select("id, requested_action")
+    .textSearch("requested_action", req.body.type, {
+      config: "english",
+    });
+
+  console.log(req.body.type, data);
+
+  if (error) {
+    console.log(error, data);
+    res.json({
+      message: error.message,
+      success: false,
+    });
+    return;
+  }
+  
+  res.json({
+    message: "success",
+    success: true,
+  });
+});
+
 router.post("/updateUser", async (req, res) => {
   if (!req.isAuthenticated || !req.isAuthenticated()) {
     res.sendStatus(404);
@@ -74,17 +105,77 @@ router.post("/updateUser", async (req, res) => {
     return;
   }
 
-  if (
-    !(await insertNewAttendanceLog(
-      data[0],
-      data[0].present ? "Signed In" : "Signed Out"
-    ))
-  ) {
+  if ("present" in updateBody) {
+    if (
+      !(await insertNewAttendanceLog(
+        data[0],
+        data[0].present ? "Signed In" : "Signed Out"
+      ))
+    ) {
+      res.json({
+        message: "Error: inserting attendance",
+        success: false,
+      });
+      return;
+    }
+  }
+
+  res.json({
+    message: "Success",
+    success: true,
+  });
+});
+
+router.post("/updateAttendance", async (req, res) => {
+  if (!req.isAuthenticated || !req.isAuthenticated()) {
+    res.sendStatus(404);
+    return;
+  }
+
+  if (!req.user.admin) {
     res.json({
-      message: "Error: inserting attendance",
+      message: "Error: not admin",
       success: false,
     });
     return;
+  }
+
+  let updateBody = {};
+  updateBody.action = req.body.action;
+  updateBody.user_id = req.body.id;
+  updateBody.name = req.body.name;
+
+  if (req.body.timestamp) {
+    updateBody.action_logged_at = req.body.timestamp;
+  }
+
+  const { data, error } = await supabase.from("attendance").insert(updateBody);
+
+  if (error) {
+    res.json({
+      message: error.message,
+      success: false,
+    });
+    return;
+  }
+
+  // if timestamp, then request originated from student attendance signin/out request page
+  if (req.body.timestamp) {
+    const { users, err } = await supabase
+      .from("users")
+      .update({
+        requested_action: "none",
+        present: updateBody.action === "Signed In" ? true : false,
+      })
+      .match({ id: req.body.id });
+
+    if (err) {
+      res.json({
+        message: err.message,
+        success: false,
+      });
+      return;
+    }
   }
 
   res.json({
@@ -101,7 +192,7 @@ router.get("/userList", async (req, res) => {
 
   if (!req.user.admin) {
     res.json({
-      error: "Error: not admin",
+      message: "Error: not admin",
       success: false,
     });
     return;
@@ -114,7 +205,7 @@ router.get("/userList", async (req, res) => {
 
   if (error) {
     res.json({
-      error: "Error: " + error,
+      message: "Error: " + error,
       success: false,
     });
     return;
@@ -135,7 +226,7 @@ router.get("/allAttendanceRequests", async (req, res) => {
 
   if (!req.user.admin) {
     res.json({
-      error: "Error: not admin",
+      message: "Error: not admin",
       success: false,
     });
     return;
@@ -149,7 +240,7 @@ router.get("/allAttendanceRequests", async (req, res) => {
 
   if (error) {
     res.json({
-      error: "Error: retrieving requests data",
+      message: "Error: retrieving requests data",
       success: false,
     });
     return;

@@ -10,7 +10,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleLeft } from "@fortawesome/free-solid-svg-icons";
 import RosterModal from "./components/RosterModal";
 
-function RosterPage({ passedUser }) {
+function RosterPage() {
   const [userList, setUserList] = useState([]);
 
   const [rosterClicked, setRosterClicked] = useState([false, "", "", [""]]);
@@ -174,7 +174,6 @@ function RosterPage({ passedUser }) {
         </div>
       </section>
       <RosterModal
-        user={passedUser}
         getUserList={getUserList}
         rosterClicked={rosterClicked}
         setRosterClicked={setRosterClicked}

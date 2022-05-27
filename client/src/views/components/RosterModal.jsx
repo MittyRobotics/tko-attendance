@@ -2,7 +2,7 @@ import { faWrench } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
 
-function RosterModal({ user, getUserList, rosterClicked, setRosterClicked }) {
+function RosterModal({ getUserList, rosterClicked, setRosterClicked }) {
   const [selectedValue, setSelectedValue] = useState(rosterClicked[3][0]);
   const [updating, setUpdating] = useState(false);
 

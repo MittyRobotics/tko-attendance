@@ -50,41 +50,29 @@ function App() {
         <Route
           path="qrscan"
           element={
-            user && user.admin ? (
-              <QRScanPage user={user} />
-            ) : (
-              <Navigate to="/" replace />
-            )
+            user && user.admin ? <QRScanPage /> : <Navigate to="/" replace />
           }
         />
         <Route
           path="roster"
           element={
-            user && user.admin ? (
-              <RosterPage user={user} />
-            ) : (
-              <Navigate to="/" replace />
-            )
+            user && user.admin ? <RosterPage /> : <Navigate to="/" replace />
           }
         />
         <Route
           path="attendance"
           element={
             user && user.admin ? (
-              <AttendancePage user={user} />
+              <AttendancePage />
             ) : (
               <Navigate to="/" replace />
             )
           }
         />
-         <Route
+        <Route
           path="requests"
           element={
-            user && user.admin ? (
-              <RequestsPage user={user} />
-            ) : (
-              <Navigate to="/" replace />
-            )
+            user && user.admin ? <RequestsPage /> : <Navigate to="/" replace />
           }
         />
       </Routes>

@@ -9,7 +9,7 @@ import "animate.css";
 import "hover.css";
 import "./Home.css";
 
-function QRScanPage({ user }) {
+function QRScanPage() {
   const blinkSuccess = () => {
     document.getElementById("qr-wrapper").classList.add("blink");
     setTimeout(() => {

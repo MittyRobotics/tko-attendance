@@ -7,7 +7,7 @@ import "./Home.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleLeft } from "@fortawesome/free-solid-svg-icons";
 
-function AttendancePage({ user }) {
+function AttendancePage() {
   return (
     <div>
       <section className="hero-pattern">
