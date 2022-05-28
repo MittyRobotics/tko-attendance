@@ -32,6 +32,7 @@ function App() {
         return response.json();
       })
       .then((responseJson) => {
+        console.log(responseJson);
         setUser(responseJson.user);
       });
   }, []);
