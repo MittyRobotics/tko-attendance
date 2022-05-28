@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 import "bulma/css/bulma.min.css";
 import "animate.css";
@@ -7,7 +7,7 @@ import "./Home.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleLeft } from "@fortawesome/free-solid-svg-icons";
 
-function AttendancePage() {
+function NotFoundPage() {
   return (
     <div>
       <section className="hero-pattern">
@@ -20,11 +20,11 @@ function AttendancePage() {
           </button>
         </div>
         <div className="qr-title container block">
-          <h1 className="name block">Attendance Records</h1>
+          <h1 className="name block">404: Page Not Found</h1>
         </div>
       </section>
     </div>
   );
 }
 
-export default AttendancePage;
+export default NotFoundPage;

@@ -11,8 +11,6 @@ function RequestModal({ user, requestClicked, setRequestClicked }) {
   const handleRequestChange = (e) => {
     let { name, value } = e.target;
 
-    console.log(value);
-
     setRequest(value);
   };
 
@@ -58,8 +56,6 @@ function RequestModal({ user, requestClicked, setRequestClicked }) {
         setSubmitClicked(false);
       });
   };
-
-  console.log(request);
 
   return (
     <div

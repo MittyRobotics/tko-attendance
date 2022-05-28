@@ -12,6 +12,7 @@ import ReactLoading from "react-loading";
 import RosterPage from "./views/RosterPage";
 import AttendancePage from "./views/AttendancePage";
 import RequestsPage from "./views/RequestsPage";
+import NotFoundPage from "./views/NotFoundPage";
 
 function App() {
   const [user, setUser] = React.useState(null);
@@ -30,7 +31,6 @@ function App() {
         return response.json();
       })
       .then((responseJson) => {
-        console.log(responseJson);
         setUser(responseJson.user);
       });
   }, []);
@@ -75,6 +75,7 @@ function App() {
             user && user.admin ? <RequestsPage /> : <Navigate to="/" replace />
           }
         />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Router>
   );

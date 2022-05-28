@@ -30,6 +30,7 @@
     "express-session": "^1.17.3",
     "helmet": "^5.1.0",
     "morgan": "^1.10.0",
+    "node-schedule": "^2.1.0",
     "nodemon": "^2.0.16",
     "passport": "^0.5.2",
     "passport-google-oidc": "^0.1.0"

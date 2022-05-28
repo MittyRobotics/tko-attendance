@@ -1,5 +1,5 @@
 const CACHE_NAME = "tko-attendance";
-const urlsToCache = ["index.html"];
+const urlsToCache = ["/", "/auth/login/success"];
 
 const self = this;
 

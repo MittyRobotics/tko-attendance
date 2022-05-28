@@ -1,5 +1,6 @@
 var express = require("express");
 import supabase from "../supabase-setup";
+import schedule from "node-schedule";
 
 const router = express.Router();
 
@@ -497,7 +498,7 @@ router.post("/request", async (req, res) => {
   });
 });
 
-router.post("/signoutAll", async (req, res) => {
+let signoutAll = async (req, res) => {
   if (!req.isAuthenticated || !req.isAuthenticated()) {
     res.sendStatus(404);
     return;
@@ -543,6 +544,12 @@ router.post("/signoutAll", async (req, res) => {
     message: "Success",
     success: true,
   });
+};
+
+router.post("/signoutAll", signoutAll);
+
+schedule.scheduleJob("0 0 * * *", () => {
+  signoutAll();
 });
 
 module.exports = router;
