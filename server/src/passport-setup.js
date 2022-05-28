@@ -11,8 +11,10 @@ passport.deserializeUser(async (serializedUserId, done) => {
   let { data: users, error } = await supabase.from("users");
   let foundUser = users.find((user) => user.id === serializedUserId);
   if (foundUser) {
+    console.log('found');
     done(null, foundUser);
   } else {
+    console.log('not found');
     done(null, false);
   }
 });
