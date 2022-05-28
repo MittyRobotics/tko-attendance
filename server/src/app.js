@@ -34,23 +34,23 @@ app.use(
     keys: [process.env["SESSION_SECRET"]],
     maxAge: 24 * 60 * 60 * 100,
     cookie: {
-      // domain: process.env["CLIENT_URL"].split("//")[1],
+      domain: process.env["CLIENT_URL"].split("//")[1],
       secure: true,
       sameSite: "none",
     },
   })
 );
 
-let setCache = function (req, res, next) {
-  if (req.method == "GET") {
-    res.set("Cache-control", `no-cache`);
-  } else {
-    res.set("Cache-control", `no-store`);
-  }
-  next();
-};
+// let setCache = function (req, res, next) {
+//   if (req.method == "GET") {
+//     res.set("Cache-control", `no-cache`);
+//   } else {
+//     res.set("Cache-control", `no-store`);
+//   }
+//   next();
+// };
 
-app.use(setCache);
+// app.use(setCache);
 
 app.use(cookieParser());
 
