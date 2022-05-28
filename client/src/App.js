@@ -18,6 +18,7 @@ function App() {
   const [user, setUser] = React.useState(null);
 
   useEffect(() => {
+    console.log(process.env.REACT_APP_SERVER_URL);
     fetch(process.env.REACT_APP_SERVER_URL + "/auth/login/success", {
       method: "GET",
       credentials: "include",
