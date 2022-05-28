@@ -21,6 +21,14 @@ app.use(logger("dev"));
 app.use(helmet());
 
 app.use(
+  cors({
+    origin: process.env["CLIENT_URL"],
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: true,
+  })
+);
+
+app.use(
   cookieSession({
     name: "session",
     keys: [process.env["SESSION_SECRET"]],
@@ -49,14 +57,6 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(passport.initialize());
 app.use(passport.session());
-
-app.use(
-  cors({
-    origin: process.env["CLIENT_URL"],
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    credentials: true,
-  })
-);
 
 app.use("/auth", authRoutes);
 app.use("/", indexRoutes);
