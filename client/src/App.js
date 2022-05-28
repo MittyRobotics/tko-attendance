@@ -19,6 +19,7 @@ function App() {
 
   useEffect(() => {
     console.log(process.env.REACT_APP_SERVER_URL);
+    console.log(document.cookie);
     fetch(process.env.REACT_APP_SERVER_URL + "/auth/login/success", {
       method: "GET",
       credentials: "include",
