@@ -34,6 +34,7 @@ app.use(
     keys: [process.env["SESSION_SECRET"]],
     maxAge: 24 * 60 * 60 * 100,
     cookie: {
+      domain: process.env["CLIENT_URL"].split("//")[1],
       secure: true,
     },
   })
