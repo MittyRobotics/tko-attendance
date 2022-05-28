@@ -18,15 +18,15 @@ const logger = require("morgan");
 
 app.disable("x-powered-by");
 app.use(logger("dev"));
-app.use(helmet());
+// app.use(helmet());
 
-app.use(
-  cors({
-    origin: process.env["CLIENT_URL"],
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    credentials: true,
-  })
-);
+// app.use(
+//   cors({
+//     origin: process.env["CLIENT_URL"],
+//     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+//     credentials: true,
+//   })
+// );
 
 app.use(
   cookieSession({
