@@ -82,7 +82,7 @@ app.get("/", authCheck, (req, res) => {
 });
 
 app.listen(PORT, function () {
-  console.log(`Server listening at http://localhost:${PORT} 🚀`);
+  console.log(`Node server listening at http://localhost:${PORT} 🚀`);
 });
 
 module.exports = app;
