@@ -41,16 +41,16 @@ app.use(
   })
 );
 
-// let setCache = function (req, res, next) {
-//   if (req.method == "GET") {
-//     res.set("Cache-control", `no-cache`);
-//   } else {
-//     res.set("Cache-control", `no-store`);
-//   }
-//   next();
-// };
+let setCache = function (req, res, next) {
+  if (req.method == "GET") {
+    res.set("Cache-control", `no-cache`);
+  } else {
+    res.set("Cache-control", `no-store`);
+  }
+  next();
+};
 
-// app.use(setCache);
+app.use(setCache);
 
 app.use(cookieParser());
 
