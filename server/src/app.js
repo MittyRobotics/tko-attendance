@@ -36,7 +36,8 @@ app.use(
     cookie: {
       domain: process.env["CLIENT_URL"].split("//")[1],
       secure: true,
-      secureProxy: true,
+      httpOnly: false,
+      sameSite: "none",
     },
   })
 );
