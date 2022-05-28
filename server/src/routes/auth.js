@@ -14,7 +14,7 @@ router.get(
 );
 
 router.get("/login/success", (req, res) => {
-  console.log(req.session, req.user);
+  // console.log(req.session, req.user);
   if (req.user) {
     res.json({
       user: req.user,

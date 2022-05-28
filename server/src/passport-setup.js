@@ -11,10 +11,10 @@ passport.deserializeUser(async (serializedUserId, done) => {
   let { data: users, error } = await supabase.from("users");
   let foundUser = users.find((user) => user.id === serializedUserId);
   if (foundUser) {
-    console.log('found');
+    console.log("found");
     done(null, foundUser);
   } else {
-    console.log('not found');
+    console.log("not found");
     done(null, false);
   }
 });
@@ -37,6 +37,7 @@ passport.use(
 
       var user = users.find((user) => user.google_id === profile.id);
       if (user) {
+        console.log(profile, user);
         return cb(null, user);
       }
 
@@ -52,6 +53,7 @@ passport.use(
         return cb(newUserError.message);
       }
 
+      console.log(profile, newUser[0]);
       return cb(null, newUser[0]);
     }
   )
