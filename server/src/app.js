@@ -5,7 +5,8 @@ const app = express();
 require("dotenv").config({ path: "./.env" });
 const PORT = process.env.PORT || 4000;
 
-const cookieSession = require("cookie-session");
+// const cookieSession = require("cookie-session");
+const expressSession = require("express-session");
 const cors = require("cors");
 const passport = require("passport");
 const authRoutes = require("./routes/auth");
@@ -24,22 +25,45 @@ app.use(
   cors({
     origin: process.env["CLIENT_URL"],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "Accept",
+      "Access-Control-Allow-Origin",
+      "Access-Control-Allow-Credentials",
+    ],
     credentials: true,
   })
 );
 
+// express session
 app.use(
-  cookieSession({
-    name: "session",
-    keys: [process.env["SESSION_SECRET"]],
-    maxAge: 24 * 60 * 60 * 100,
+  expressSession({
+    secret: process.env["SESSION_SECRET"],
+    resave: false,
+    saveUninitialized: false,
+    rolling: true,
     cookie: {
-      domain: process.env["CLIENT_URL"].split("//")[1],
+      maxAge: 24 * 60 * 60 * 100,
       secure: true,
       sameSite: "none",
     },
   })
 );
+
+// app.use(
+//   cookieSession({
+//     name: "session",
+//     keys: [process.env["SESSION_SECRET"]],
+//     maxAge: 24 * 60 * 60 * 100,
+//     cookie: {
+//       domain: process.env["CLIENT_URL"].split("//")[1],
+//       secure: true,
+//       sameSite: "none",
+//     },
+//   })
+// );
 
 let setCache = function (req, res, next) {
   if (req.method == "GET") {

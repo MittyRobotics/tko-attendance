@@ -4,7 +4,7 @@ const passport = require("passport");
 const GoogleStrategy = require("passport-google-oidc");
 
 passport.serializeUser((user, done) => {
-  console.log(user.id);
+  console.log("serialize: " + user.id);
   done(null, user.id);
 });
 
