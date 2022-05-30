@@ -1,4 +1,3 @@
-
 const express = require("express");
 const session = require("express-session");
 let RedisStore = require("connect-redis")(session);
@@ -23,9 +22,10 @@ let setCache = function (req, res, next) {
   next();
 };
 
+let redis_url = process.env.REDIS_URL || "redis://localhost:6379";
 let redisClient = createClient({
   legacyMode: true,
-  port: process.env.REDIS_PORT,
+  url: redis_url,
 });
 redisClient.connect().catch(console.error);
 
