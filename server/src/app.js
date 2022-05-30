@@ -40,6 +40,7 @@ redisClient.on("disconnect", function () {
 const app = express();
 const PORT = process.env.PORT || 4000;
 app.disable("x-powered-by");
+app.set("trust proxy", 1);
 app.use(logger("dev"));
 
 app.use(helmet());
