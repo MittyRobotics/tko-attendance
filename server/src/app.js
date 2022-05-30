@@ -30,11 +30,11 @@ let redisClient = createClient({
 redisClient.connect().catch(console.error);
 
 redisClient.on("connect", function () {
-  console.log("Connected!");
+  console.log("Connected to Redis");
 });
 
 redisClient.on("disconnect", function () {
-  console.log("Disconnected!");
+  console.log("Disconnected from Redis");
 });
 
 const app = express();
