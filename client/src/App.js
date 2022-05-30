@@ -23,6 +23,7 @@ function App() {
     fetch(process.env.REACT_APP_SERVER_URL + "/auth/login/success", {
       method: "GET",
       credentials: "include",
+      mode: "cors",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
