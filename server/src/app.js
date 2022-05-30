@@ -66,11 +66,11 @@ app.use(
     secret: process.env["SESSION_SECRET"],
     resave: false,
     saveUninitialized: false,
-    // rolling: true,
+    rolling: true,
     cookie: {
       maxAge: 24 * 60 * 60 * 100,
-      // secure: true,
-      // sameSite: "none",
+      secure: true,
+      sameSite: "none",
     },
   })
 );
