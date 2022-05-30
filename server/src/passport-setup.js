@@ -29,6 +29,7 @@ passport.use(
       scope: ["profile", "email"],
     },
     async function verify(issuer, profile, cb) {
+      console.log(profile, user);
       let { data: users, error } = await supabase.from("users");
 
       if (error) {

@@ -1,24 +1,47 @@
-import express from "express";
 
-const app = express();
-
+const express = require("express");
+const session = require("express-session");
+let RedisStore = require("connect-redis")(session);
+const { createClient } = require("redis");
 require("dotenv").config({ path: "./.env" });
-const PORT = process.env.PORT || 4000;
-
-// const cookieSession = require("cookie-session");
-const expressSession = require("express-session");
 const cors = require("cors");
+const helmet = require("helmet");
+const logger = require("morgan");
+
 const passport = require("passport");
 const authRoutes = require("./routes/auth");
 const indexRoutes = require("./routes/tables");
-const helmet = require("helmet");
-
 const cookieParser = require("cookie-parser");
 const passportSetup = require("./passport-setup");
-const logger = require("morgan");
 
+let setCache = function (req, res, next) {
+  if (req.method == "GET") {
+    res.set("Cache-control", `no-cache`);
+  } else {
+    res.set("Cache-control", `no-store`);
+  }
+  next();
+};
+
+let redisClient = createClient({
+  legacyMode: true,
+  port: process.env.REDIS_PORT,
+});
+redisClient.connect().catch(console.error);
+
+redisClient.on("connect", function () {
+  console.log("Connected!");
+});
+
+redisClient.on("disconnect", function () {
+  console.log("Disconnected!");
+});
+
+const app = express();
+const PORT = process.env.PORT || 4000;
 app.disable("x-powered-by");
 app.use(logger("dev"));
+
 app.use(helmet());
 
 app.use(
@@ -37,42 +60,20 @@ app.use(
   })
 );
 
-// express session
 app.use(
-  expressSession({
+  session({
+    store: new RedisStore({ client: redisClient, ttl: 86400 }),
     secret: process.env["SESSION_SECRET"],
     resave: false,
     saveUninitialized: false,
-    rolling: true,
+    // rolling: true,
     cookie: {
       maxAge: 24 * 60 * 60 * 100,
-      secure: true,
-      sameSite: "none",
+      // secure: true,
+      // sameSite: "none",
     },
   })
 );
-
-// app.use(
-//   cookieSession({
-//     name: "session",
-//     keys: [process.env["SESSION_SECRET"]],
-//     maxAge: 24 * 60 * 60 * 100,
-//     cookie: {
-//       domain: process.env["CLIENT_URL"].split("//")[1],
-//       secure: true,
-//       sameSite: "none",
-//     },
-//   })
-// );
-
-let setCache = function (req, res, next) {
-  if (req.method == "GET") {
-    res.set("Cache-control", `no-cache`);
-  } else {
-    res.set("Cache-control", `no-store`);
-  }
-  next();
-};
 
 app.use(setCache);
 

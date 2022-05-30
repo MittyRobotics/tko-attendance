@@ -5,7 +5,7 @@ here we go again
 
 ### Deploy server to Heroku
 
-`git subtree push --prefix web heroku master`
+`git subtree push --prefix server heroku master`
 
 ### Deploy client to Vercel
 
