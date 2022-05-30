@@ -47,8 +47,9 @@ app.use(helmet());
 app.use(
   cors({
     origin: process.env["CLIENT_URL"],
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
     allowedHeaders: [
+      "Origin",
       "Content-Type",
       "Authorization",
       "X-Requested-With",
@@ -69,8 +70,9 @@ app.use(
     rolling: true,
     cookie: {
       maxAge: 24 * 60 * 60 * 100,
-      secure: true,
-      sameSite: "none",
+      // secure: true,
+      // sameSite: "lax",
+      domain: process.env["CLIENT_URL"],
     },
   })
 );
