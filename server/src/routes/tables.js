@@ -454,10 +454,8 @@ router.post(
               userData[data[i].user_id].lastActionTimeStamp
             );
             var endTime = moment(data[i].action_logged_at);
-            var duration = moment.duration(endTime.diff(startTime));
-            userData[data[i].user_id].hours += roundToTwo(
-              parseInt(duration.as("minutes")) / 60
-            );
+            var duration = endTime.diff(startTime, "minutes");
+            userData[data[i].user_id].hours += roundToTwo(duration / 60);
             userData[data[i].user_id].lastAction = data[i].action;
             userData[data[i].user_id].lastActionTimeStamp =
               data[i].action_logged_at;
@@ -571,6 +569,7 @@ router.post(
 );
 
 let signoutAll = async (req, res) => {
+  console.log("signout all!");
   if (!req.user.admin) {
     res.sendStatus(404);
     return;
@@ -619,8 +618,21 @@ router.post(
   signoutAll
 );
 
-schedule.scheduleJob("0 0 * * *", () => {
-  signoutAll();
-});
+var date = new Date();
+date.setUTCHours(+8);
+date.setUTCMinutes(0);
+date.setUTCSeconds(0);
+date.setUTCMilliseconds(0);
+
+schedule.scheduleJob(
+  {
+    hour: date.getHours(),
+    minute: date.getMinutes(),
+    seconds: date.getSeconds(),
+  },
+  () => {
+    signoutAll();
+  }
+);
 
 module.exports = router;
