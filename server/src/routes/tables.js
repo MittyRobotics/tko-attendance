@@ -479,22 +479,9 @@ router.post(
 );
 
 function toISOStringLocal(d) {
-  function z(n) {
-    return (n < 10 ? "0" : "") + n;
-  }
-  return (
-    d.getFullYear() +
-    "-" +
-    z(d.getMonth() + 1) +
-    "-" +
-    z(d.getDate()) +
-    "T" +
-    z(d.getHours()) +
-    ":" +
-    z(d.getMinutes()) +
-    ":" +
-    z(d.getSeconds())
-  );
+  var tzoffset = new Date().getTimezoneOffset() * 60000;
+  var localISOTime = new Date(Date.now() - tzoffset).toISOString().slice(0, -1);
+  return localISOTime;
 }
 
 router.post(
@@ -618,21 +605,8 @@ router.post(
   signoutAll
 );
 
-var date = new Date();
-date.setUTCHours(+8);
-date.setUTCMinutes(0);
-date.setUTCSeconds(0);
-date.setUTCMilliseconds(0);
-
-schedule.scheduleJob(
-  {
-    hour: date.getHours(),
-    minute: date.getMinutes(),
-    seconds: date.getSeconds(),
-  },
-  () => {
-    signoutAll();
-  }
-);
+// schedule.scheduleJob("0 0 * * *", () => {
+//   signoutAll();
+// });
 
 module.exports = router;
