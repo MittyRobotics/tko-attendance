@@ -31,6 +31,9 @@ function App() {
       },
     })
       .then((response) => {
+        if (response.status === 401) {
+          setUser(false);
+        }
         return response.json();
       })
       .then((responseJson) => {

@@ -1,5 +1,7 @@
 var express = require("express");
 import supabase from "../supabase-setup";
+const passport = require("passport");
+
 import schedule from "node-schedule";
 
 const router = express.Router();
@@ -29,66 +31,169 @@ async function insertNewAttendanceLog(user, action) {
   return true;
 }
 
-router.post("/updateUserBulk", async (req, res) => {
-  if (!req.isAuthenticated || !req.isAuthenticated()) {
-    res.sendStatus(404);
-    return;
-  }
+router.post(
+  "/updateUserBulk",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    const { data, error } = await supabase
+      .from("users")
+      .update({ requested_action: "none" })
+      .select("id, requested_action")
+      .textSearch("requested_action", req.body.type, {
+        config: "english",
+      });
 
-  const { data, error } = await supabase
-    .from("users")
-    .update({ requested_action: "none" })
-    .select("id, requested_action")
-    .textSearch("requested_action", req.body.type, {
-      config: "english",
-    });
+    if (error) {
+      res.json({
+        message: error.message,
+        success: false,
+      });
+      return;
+    }
 
-  if (error) {
     res.json({
-      message: error.message,
-      success: false,
+      message: "success",
+      success: true,
     });
-    return;
   }
+);
 
-  res.json({
-    message: "success",
-    success: true,
-  });
-});
+router.post(
+  "/updateAttendanceBulk",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    let actionCheck = req.body.type === "Signed In" ? "SignIn" : "SignOut";
+    let presentCheck = req.body.type === "Signed In" ? true : false;
 
-router.post("/updateAttendanceBulk", async (req, res) => {
-  if (!req.isAuthenticated || !req.isAuthenticated()) {
-    res.sendStatus(404);
-    return;
-  }
+    const { data, error } = await supabase
+      .from("users")
+      .update({ requested_action: "none", present: presentCheck })
+      .select("present, requested_action")
+      .textSearch("requested_action", actionCheck, {
+        config: "english",
+      });
 
-  let actionCheck = req.body.type === "Signed In" ? "SignIn" : "SignOut";
-  let presentCheck = req.body.type === "Signed In" ? true : false;
+    if (error) {
+      res.json({
+        message: error.message,
+        success: false,
+      });
+      return;
+    }
 
-  const { data, error } = await supabase
-    .from("users")
-    .update({ requested_action: "none", present: presentCheck })
-    .select("present, requested_action")
-    .textSearch("requested_action", actionCheck, {
-      config: "english",
-    });
+    for (let i = 0; i < req.body.data.length; i++) {
+      let updateBody = {};
+      updateBody.action = req.body.type;
+      updateBody.user_id = req.body.data[i].id;
+      updateBody.name = req.body.data[i].name;
+      updateBody.action_logged_at =
+        req.body.data[i].requested_action.split(",")[1];
 
-  if (error) {
+      const { data, error } = await supabase
+        .from("attendance")
+        .insert(updateBody);
+
+      if (error) {
+        res.json({
+          message: error.message,
+          success: false,
+        });
+        return;
+      }
+    }
     res.json({
-      message: error.message,
-      success: false,
+      message: "Success",
+      success: true,
     });
-    return;
   }
+);
 
-  for (let i = 0; i < req.body.data.length; i++) {
+router.post(
+  "/updateUser",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
     let updateBody = {};
-    updateBody.action = req.body.type;
-    updateBody.user_id = req.body.data[i].id;
-    updateBody.name = req.body.data[i].name;
-    updateBody.action_logged_at =
-      req.body.data[i].requested_action.split(",")[1];
+
+    if (req.body.department) {
+      updateBody.department = req.body.department;
+    }
+    if (req.body.admin) {
+      if (req.user.admin) {
+        updateBody.admin = req.body.admin;
+      }
+    }
+    if (req.body.current_grade) {
+      updateBody.current_grade = req.body.current_grade;
+    }
+    if (req.body.present) {
+      updateBody.present = req.body.present;
+    }
+    if (req.body.total_hours) {
+      if (req.user.admin) {
+        updateBody.total_hours = req.body.total_hours;
+      }
+    }
+    if (req.body.requested_action) {
+      if (req.user.admin) {
+        updateBody.requested_action = req.body.requested_action;
+      }
+    }
+
+    const { data, error } = await supabase
+      .from("users")
+      .update(updateBody)
+      .match({ id: req.body.id });
+
+    if (error) {
+      res.json({
+        message: error.message,
+        success: false,
+      });
+      return;
+    }
+
+    if ("present" in updateBody) {
+      if (
+        !(await insertNewAttendanceLog(
+          data[0],
+          data[0].present ? "Signed In" : "Signed Out"
+        ))
+      ) {
+        res.json({
+          message: "Error: inserting attendance",
+          success: false,
+        });
+        return;
+      }
+    }
+
+    res.json({
+      message: "Success",
+      success: true,
+    });
+  }
+);
+
+router.post(
+  "/updateAttendance",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    if (!req.user.admin) {
+      res.json({
+        message: "Error: not admin",
+        success: false,
+      });
+      return;
+    }
+
+    let updateBody = {};
+    updateBody.action = req.body.action;
+    updateBody.user_id = req.body.id;
+    updateBody.name = req.body.name;
+
+    if (req.body.timestamp) {
+      updateBody.action_logged_at = req.body.timestamp;
+    }
 
     const { data, error } = await supabase
       .from("attendance")
@@ -101,235 +206,185 @@ router.post("/updateAttendanceBulk", async (req, res) => {
       });
       return;
     }
-  }
-  res.json({
-    message: "Success",
-    success: true,
-  });
-});
 
-router.post("/updateUser", async (req, res) => {
-  if (!req.isAuthenticated || !req.isAuthenticated()) {
-    res.sendStatus(404);
-    return;
-  }
+    // if timestamp, then request originated from student attendance signin/out request page
+    if (req.body.timestamp) {
+      const { users, err } = await supabase
+        .from("users")
+        .update({
+          requested_action: "none",
+          present: updateBody.action === "Signed In" ? true : false,
+        })
+        .match({ id: req.body.id });
 
-  let updateBody = {};
-
-  if (req.body.department) {
-    updateBody.department = req.body.department;
-  }
-  if (req.body.admin) {
-    if (req.user.admin) {
-      updateBody.admin = req.body.admin;
+      if (err) {
+        res.json({
+          message: err.message,
+          success: false,
+        });
+        return;
+      }
     }
-  }
-  if (req.body.current_grade) {
-    updateBody.current_grade = req.body.current_grade;
-  }
-  if (req.body.present) {
-    updateBody.present = req.body.present;
-  }
-  if (req.body.total_hours) {
-    if (req.user.admin) {
-      updateBody.total_hours = req.body.total_hours;
-    }
-  }
-  if (req.body.requested_action) {
-    if (req.user.admin) {
-      updateBody.requested_action = req.body.requested_action;
-    }
-  }
 
-  const { data, error } = await supabase
-    .from("users")
-    .update(updateBody)
-    .match({ id: req.body.id });
-
-  if (error) {
     res.json({
-      message: error.message,
-      success: false,
+      message: "Success",
+      success: true,
     });
-    return;
   }
+);
 
-  if ("present" in updateBody) {
-    if (
-      !(await insertNewAttendanceLog(
-        data[0],
-        data[0].present ? "Signed In" : "Signed Out"
-      ))
-    ) {
+router.get(
+  "/userList",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    if (!req.user.admin) {
       res.json({
-        message: "Error: inserting attendance",
+        message: "Error: not admin",
         success: false,
       });
       return;
     }
-  }
 
-  res.json({
-    message: "Success",
-    success: true,
-  });
-});
-
-router.post("/updateAttendance", async (req, res) => {
-  if (!req.isAuthenticated || !req.isAuthenticated()) {
-    res.sendStatus(404);
-    return;
-  }
-
-  if (!req.user.admin) {
-    res.json({
-      message: "Error: not admin",
-      success: false,
-    });
-    return;
-  }
-
-  let updateBody = {};
-  updateBody.action = req.body.action;
-  updateBody.user_id = req.body.id;
-  updateBody.name = req.body.name;
-
-  if (req.body.timestamp) {
-    updateBody.action_logged_at = req.body.timestamp;
-  }
-
-  const { data, error } = await supabase.from("attendance").insert(updateBody);
-
-  if (error) {
-    res.json({
-      message: error.message,
-      success: false,
-    });
-    return;
-  }
-
-  // if timestamp, then request originated from student attendance signin/out request page
-  if (req.body.timestamp) {
-    const { users, err } = await supabase
+    const { data, error } = await supabase
       .from("users")
-      .update({
-        requested_action: "none",
-        present: updateBody.action === "Signed In" ? true : false,
-      })
-      .match({ id: req.body.id });
+      .select(
+        "id, name, department, admin, current_grade, present, total_hours"
+      )
+      .order("id", { ascending: true });
 
-    if (err) {
+    if (error) {
       res.json({
-        message: err.message,
+        message: "Error: " + error,
         success: false,
       });
       return;
     }
-  }
 
-  res.json({
-    message: "Success",
-    success: true,
-  });
-});
-
-router.get("/userList", async (req, res) => {
-  if (!req.isAuthenticated || !req.isAuthenticated()) {
-    res.sendStatus(404);
-    return;
-  }
-
-  if (!req.user.admin) {
     res.json({
-      message: "Error: not admin",
-      success: false,
+      userList: data,
+      message: "Success",
+      success: true,
     });
-    return;
   }
+);
 
-  const { data, error } = await supabase
-    .from("users")
-    .select("id, name, department, admin, current_grade, present, total_hours")
-    .order("id", { ascending: true });
-
-  if (error) {
-    res.json({
-      message: "Error: " + error,
-      success: false,
-    });
-    return;
-  }
-
-  res.json({
-    userList: data,
-    message: "Success",
-    success: true,
-  });
-});
-
-router.get("/allAttendanceRequests", async (req, res) => {
-  if (!req.isAuthenticated || !req.isAuthenticated()) {
-    res.sendStatus(404);
-    return;
-  }
-
-  if (!req.user.admin) {
-    res.json({
-      message: "Error: not admin",
-      success: false,
-    });
-    return;
-  }
-
-  const { data, error } = await supabase
-    .from("users")
-    .select("id, name, department, requested_action")
-    .not("requested_action", "eq", "none")
-    .order("id", { ascending: true });
-
-  if (error) {
-    res.json({
-      message: "Error: retrieving requests data",
-      success: false,
-    });
-    return;
-  }
-
-  let signin = [];
-  let signout = [];
-
-  for (let i = 0; i < data.length; i++) {
-    if (data[i].requested_action.includes("SignIn")) {
-      signin.push(data[i]);
-    } else {
-      signout.push(data[i]);
+router.get(
+  "/allAttendanceRequests",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    if (!req.user.admin) {
+      res.json({
+        message: "Error: not admin",
+        success: false,
+      });
+      return;
     }
+
+    const { data, error } = await supabase
+      .from("users")
+      .select("id, name, department, requested_action")
+      .not("requested_action", "eq", "none")
+      .order("id", { ascending: true });
+
+    if (error) {
+      res.json({
+        message: "Error: retrieving requests data",
+        success: false,
+      });
+      return;
+    }
+
+    let signin = [];
+    let signout = [];
+
+    for (let i = 0; i < data.length; i++) {
+      if (data[i].requested_action.includes("SignIn")) {
+        signin.push(data[i]);
+      } else {
+        signout.push(data[i]);
+      }
+    }
+
+    let finalData = {
+      signinrequests: signin,
+      signoutrequests: signout,
+    };
+
+    res.json({
+      requests: finalData,
+      message: "Success",
+      success: true,
+    });
   }
+);
 
-  let finalData = {
-    signinrequests: signin,
-    signoutrequests: signout,
-  };
+router.post(
+  "/adminPresentToggle",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    const { data, error } = await supabase.from("users");
 
-  res.json({
-    requests: finalData,
-    message: "Success",
-    success: true,
-  });
-});
+    var user = data.find((user) => user.google_id === req.body.id);
 
-router.post("/adminPresentToggle", async (req, res) => {
-  if (!req.isAuthenticated || !req.isAuthenticated()) {
-    res.sendStatus(404);
+    if (user && user.admin) {
+      if (!(await updateUserPresent(req.body.id, !user.present))) {
+        res.json({
+          message: "Error: updating user",
+          success: false,
+        });
+        return;
+      }
+
+      if (
+        !(await insertNewAttendanceLog(
+          user,
+          !user.present ? "Signed In" : "Signed Out"
+        ))
+      ) {
+        res.json({
+          message: "Error: inserting attendance",
+          success: false,
+        });
+        return;
+      }
+      res.json({
+        message: "Success",
+        success: true,
+      });
+    } else {
+      res.json({
+        message: "Not admin",
+        success: false,
+      });
+    }
+
     return;
   }
+);
 
-  const { data, error } = await supabase.from("users");
+router.post(
+  "/qrscanned",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    const { data, error } = await supabase.from("users");
 
-  var user = data.find((user) => user.google_id === req.body.id);
+    var user = data.find((user) => user.google_id === req.body.id);
 
-  if (user && user.admin) {
-    if (!(await updateUserPresent(req.body.id, !user.present))) {
+    if (!user) {
+      res.json({
+        message: "Error: retrieving user",
+        success: false,
+      });
+      return;
+    }
+
+    let updatedValue = !user.present;
+
+    let message = updatedValue
+      ? user.name + " Signed In"
+      : user.name + " Signed Out";
+
+    if (!(await updateUserPresent(req.body.id, updatedValue))) {
       res.json({
         message: "Error: updating user",
         success: false,
@@ -340,7 +395,7 @@ router.post("/adminPresentToggle", async (req, res) => {
     if (
       !(await insertNewAttendanceLog(
         user,
-        !user.present ? "Signed In" : "Signed Out"
+        updatedValue ? "Signed In" : "Signed Out"
       ))
     ) {
       res.json({
@@ -349,161 +404,98 @@ router.post("/adminPresentToggle", async (req, res) => {
       });
       return;
     }
+
     res.json({
-      message: "Success",
+      message: message,
       success: true,
     });
-  } else {
-    res.json({
-      message: "Not admin",
-      success: false,
-    });
   }
+);
 
-  return;
-});
+router.post(
+  "/request",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    if (req.body.requested_action === "Cancel Current Request") {
+      const { data: rp, er } = await supabase
+        .from("users")
+        .update({ requested_action: "none" })
+        .match({ id: req.body.id });
 
-router.post("/qrscanned", async (req, res) => {
-  if (!req.isAuthenticated || !req.isAuthenticated()) {
-    res.sendStatus(404);
-    return;
-  }
+      if (er) {
+        res.sendStatus(500);
+        return;
+      }
 
-  const { data, error } = await supabase.from("users");
+      res.status(200).json({
+        success: true,
+        message: "Request Successfully Canceled",
+      });
+      return;
+    }
 
-  var user = data.find((user) => user.google_id === req.body.id);
-
-  if (!user) {
-    res.json({
-      message: "Error: retrieving user",
-      success: false,
-    });
-    return;
-  }
-
-  let updatedValue = !user.present;
-
-  let message = updatedValue
-    ? user.name + " Signed In"
-    : user.name + " Signed Out";
-
-  if (!(await updateUserPresent(req.body.id, updatedValue))) {
-    res.json({
-      message: "Error: updating user",
-      success: false,
-    });
-    return;
-  }
-
-  if (
-    !(await insertNewAttendanceLog(
-      user,
-      updatedValue ? "Signed In" : "Signed Out"
-    ))
-  ) {
-    res.json({
-      message: "Error: inserting attendance",
-      success: false,
-    });
-    return;
-  }
-
-  res.json({
-    message: message,
-    success: true,
-  });
-});
-
-router.post("/request", async (req, res) => {
-  if (!req.isAuthenticated || !req.isAuthenticated()) {
-    res.sendStatus(404);
-    return;
-  }
-
-  if (req.body.requested_action === "Cancel Current Request") {
-    const { data: rp, er } = await supabase
+    const { data: user, error } = await supabase
       .from("users")
-      .update({ requested_action: "none" })
+      .select("id, requested_action")
+      .match({ id: req.body.id })
+      .textSearch(
+        "requested_action",
+        req.body.requested_action.split(" ").join(""),
+        {
+          config: "english",
+        }
+      );
+
+    if (error) {
+      console.log(error);
+      res.sendStatus(500);
+      return;
+    }
+
+    if (user.length > 0) {
+      res.status(200).json({
+        success: false,
+        message: "Request Already Sent",
+      });
+      return;
+    }
+
+    var now = new Date();
+    var utc_timestamp = new Date(
+      Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate(),
+        now.getUTCHours(),
+        now.getUTCMinutes(),
+        now.getUTCSeconds(),
+        now.getUTCMilliseconds()
+      )
+    );
+
+    let updateText =
+      req.body.requested_action.split(" ").join("") +
+      "," +
+      utc_timestamp.toISOString();
+
+    const { data: resp, err } = await supabase
+      .from("users")
+      .update({ requested_action: updateText })
       .match({ id: req.body.id });
 
-    if (er) {
+    if (err) {
       res.sendStatus(500);
       return;
     }
 
     res.status(200).json({
       success: true,
-      message: "Request Successfully Canceled",
+      message: "Request Successfully Sent",
     });
-    return;
   }
-
-  const { data: user, error } = await supabase
-    .from("users")
-    .select("id, requested_action")
-    .match({ id: req.body.id })
-    .textSearch(
-      "requested_action",
-      req.body.requested_action.split(" ").join(""),
-      {
-        config: "english",
-      }
-    );
-
-  if (error) {
-    console.log(error);
-    res.sendStatus(500);
-    return;
-  }
-
-  if (user.length > 0) {
-    res.status(200).json({
-      success: false,
-      message: "Request Already Sent",
-    });
-    return;
-  }
-
-  var now = new Date();
-  var utc_timestamp = new Date(
-    Date.UTC(
-      now.getUTCFullYear(),
-      now.getUTCMonth(),
-      now.getUTCDate(),
-      now.getUTCHours(),
-      now.getUTCMinutes(),
-      now.getUTCSeconds(),
-      now.getUTCMilliseconds()
-    )
-  );
-
-  let updateText =
-    req.body.requested_action.split(" ").join("") +
-    "," +
-    utc_timestamp.toISOString();
-
-  const { data: resp, err } = await supabase
-    .from("users")
-    .update({ requested_action: updateText })
-    .match({ id: req.body.id });
-
-  if (err) {
-    res.sendStatus(500);
-    return;
-  }
-
-  res.status(200).json({
-    success: true,
-    message: "Request Successfully Sent",
-  });
-});
+);
 
 let signoutAll = async (req, res) => {
-  if (!req.isAuthenticated || !req.isAuthenticated()) {
-    res.sendStatus(404);
-    return;
-  }
-
   if (!req.user.admin) {
     res.sendStatus(404);
     return;
@@ -546,7 +538,11 @@ let signoutAll = async (req, res) => {
   });
 };
 
-router.post("/signoutAll", signoutAll);
+router.post(
+  "/signoutAll",
+  passport.authenticate("jwt", { session: false }),
+  signoutAll
+);
 
 schedule.scheduleJob("0 0 * * *", () => {
   signoutAll();

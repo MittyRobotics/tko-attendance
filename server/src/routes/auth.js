@@ -2,29 +2,46 @@ var express = require("express");
 
 const router = express.Router();
 const passport = require("passport");
+const jwt = require("jsonwebtoken");
 
 router.get("/google", passport.authenticate("google"));
 
 router.get(
   "/google/redirect",
   passport.authenticate("google", {
-    successRedirect: process.env["CLIENT_URL"],
+    session: false,
     failureRedirect: "/auth/login/failed",
-  })
+  }),
+  (req, res) => {
+    jwt.sign(
+      { id: req.user.google_id },
+      process.env.JWT_SECRET,
+      { expiresIn: "2d" },
+      (err, token) => {
+        if (err) {
+          return res.json({
+            token: null,
+          });
+        }
+        res.cookie("token", token, {
+          maxAge: 24 * 60 * 60 * 100,
+          httpOnly: true,
+        });
+        res.redirect(303, process.env["CLIENT_URL"]);
+      }
+    );
+  }
 );
 
-router.get("/login/success", (req, res) => {
-  // console.log(req.session, req.user);
-  if (req.user) {
-    res.json({
+router.get(
+  "/login/success",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    res.status(200).json({
       user: req.user,
     });
-    return;
   }
-  res.json({
-    user: false,
-  });
-});
+);
 
 router.get("/login/failed", (req, res) => {
   res.status(401).json({
@@ -34,7 +51,7 @@ router.get("/login/failed", (req, res) => {
 });
 
 router.get("/logout", (req, res) => {
-  req.logout();
+  res.clearCookie("token");
   res.redirect(process.env["CLIENT_URL"]);
 });
 
