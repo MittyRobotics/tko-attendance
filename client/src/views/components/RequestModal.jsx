@@ -9,7 +9,7 @@ function RequestModal({ user, requestClicked, setRequestClicked }) {
   const [submitClicked, setSubmitClicked] = useState(false);
 
   const handleRequestChange = (e) => {
-    let { name, value } = e.target;
+    let { value } = e.target;
 
     setRequest(value);
   };

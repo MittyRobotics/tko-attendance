@@ -1,6 +1,7 @@
 var express = require("express");
 import supabase from "../supabase-setup";
 const passport = require("passport");
+import moment from "moment";
 
 import schedule from "node-schedule";
 
@@ -412,6 +413,92 @@ router.post(
   }
 );
 
+function roundToTwo(num) {
+  return +(Math.round(num + "e+2") + "e-2");
+}
+
+router.post(
+  "/getAttendanceRecords",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    const sortBy = req.body.sortBy;
+
+    if (sortBy === "date") {
+      const parsedDate = req.body.date;
+      const { data, error } = await supabase.rpc(`timestamp_text_table`, {
+        datevalue: parsedDate,
+      });
+
+      if (error) {
+        res.json({
+          message: "Error: " + error.message,
+          success: false,
+        });
+        return;
+      }
+      console.log(data);
+
+      let userData = {};
+
+      for (let i = 0; i < data.length; i++) {
+        if (!(data[i].user_id in userData) && data[i].action === "Signed In") {
+          userData[data[i].user_id] = {
+            name: data[i].name,
+            hours: 0,
+            lastAction: "Signed In",
+            lastActionTimeStamp: data[i].action_logged_at,
+          };
+        } else {
+          if (data[i].action === "Signed Out") {
+            var startTime = moment(
+              userData[data[i].user_id].lastActionTimeStamp
+            );
+            var endTime = moment(data[i].action_logged_at);
+            var duration = moment.duration(endTime.diff(startTime));
+            userData[data[i].user_id].hours += roundToTwo(
+              parseInt(duration.as("minutes")) / 60
+            );
+            userData[data[i].user_id].lastAction = data[i].action;
+            userData[data[i].user_id].lastActionTimeStamp =
+              data[i].action_logged_at;
+          } else if (data[i].action === "Signed In") {
+            userData[data[i].user_id].lastAction = data[i].action;
+            userData[data[i].user_id].lastActionTimeStamp =
+              data[i].action_logged_at;
+          }
+        }
+      }
+
+      console.log(userData);
+
+      res.json({
+        data: data,
+        message: "Success",
+        success: true,
+      });
+    }
+  }
+);
+
+function toISOStringLocal(d) {
+  function z(n) {
+    return (n < 10 ? "0" : "") + n;
+  }
+  return (
+    d.getFullYear() +
+    "-" +
+    z(d.getMonth() + 1) +
+    "-" +
+    z(d.getDate()) +
+    "T" +
+    z(d.getHours()) +
+    ":" +
+    z(d.getMinutes()) +
+    ":" +
+    z(d.getSeconds())
+  );
+}
+
 router.post(
   "/request",
   passport.authenticate("jwt", { session: false }),
@@ -461,22 +548,10 @@ router.post(
     }
 
     var now = new Date();
-    var utc_timestamp = new Date(
-      Date.UTC(
-        now.getUTCFullYear(),
-        now.getUTCMonth(),
-        now.getUTCDate(),
-        now.getUTCHours(),
-        now.getUTCMinutes(),
-        now.getUTCSeconds(),
-        now.getUTCMilliseconds()
-      )
-    );
+    var local_timestamp = toISOStringLocal(now);
 
     let updateText =
-      req.body.requested_action.split(" ").join("") +
-      "," +
-      utc_timestamp.toISOString();
+      req.body.requested_action.split(" ").join("") + "," + local_timestamp;
 
     const { data: resp, err } = await supabase
       .from("users")

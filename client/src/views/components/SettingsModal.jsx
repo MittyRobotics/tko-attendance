@@ -46,13 +46,13 @@ function SettingsModal({ user, settingsClicked, setSettingsClicked }) {
   };
 
   const handleDeptChange = (event) => {
-    let { name, value } = event.target;
+    let { value } = event.target;
 
     setDept(value);
   };
 
   const handleGradeChange = (event) => {
-    let { name, value } = event.target;
+    let { value } = event.target;
 
     setGrade(value);
   };

@@ -10,7 +10,7 @@ router.get(
   "/google/redirect",
   passport.authenticate("google", {
     session: false,
-    failureRedirect: "/auth/login/failed",
+    failureRedirect: process.env["CLIENT_URL"],
   }),
   (req, res) => {
     jwt.sign(
@@ -42,13 +42,6 @@ router.get(
     });
   }
 );
-
-router.get("/login/failed", (req, res) => {
-  res.status(401).json({
-    success: false,
-    message: "user failed to authenticate",
-  });
-});
 
 router.get("/logout", (req, res) => {
   res.clearCookie("token");

@@ -46,7 +46,7 @@ function RosterModal({ getUserList, rosterClicked, setRosterClicked }) {
   };
 
   const handleSelectChange = (event) => {
-    let { name, value } = event.target;
+    let { value } = event.target;
 
     setSelectedValue(value);
   };

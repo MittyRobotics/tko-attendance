@@ -354,3 +354,13 @@ article {
     padding: 20px;
   }
 }
+
+.attendance-container {
+  margin: 0 auto;
+  margin-top: 5vh;
+  text-align: center;
+}
+
+.sort-select {
+  margin-bottom: 5vh;
+}
