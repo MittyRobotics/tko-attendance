@@ -23,12 +23,21 @@ router.get(
             token: null,
           });
         }
-        res.cookie("token", token, {
-          maxAge: 24 * 60 * 60 * 100,
-          httpOnly: true,
-          // sameSite: "none",
-          // secure: true,
-        });
+        res.cookie(
+          "token",
+          token,
+          process.env["CLIENT_URL"].includes("localhost")
+            ? {
+                maxAge: 24 * 60 * 60 * 100,
+                httpOnly: true,
+              }
+            : {
+                maxAge: 24 * 60 * 60 * 100,
+                httpOnly: true,
+                sameSite: "none",
+                secure: true,
+              }
+        );
         res.redirect(303, process.env["CLIENT_URL"]);
       }
     );
