@@ -9,7 +9,6 @@ const passport = require("passport");
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/users");
 const attendanceRoutes = require("./routes/attendance");
-const indexRoutes = require("./routes/tables");
 const cookieParser = require("cookie-parser");
 const passportSetup = require("./passport-setup");
 
