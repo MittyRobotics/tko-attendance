@@ -66,7 +66,6 @@ function QRScanPage() {
         <div id="qr-wrapper" className="container qr-wrapper block">
           <QrReader
             onScan={(data) => {
-              // console.log(data);
               if (data !== null) passToBackend(data);
             }}
             onError={(err) => {}}

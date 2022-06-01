@@ -1,6 +1,7 @@
 .calendar-chooser {
   /* max-width: 600px; */
   margin: auto;
+  margin-bottom: 4vh;
   padding: 10px;
   border-radius: 10px;
   border: 4px solid black;

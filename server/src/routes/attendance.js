@@ -37,30 +37,35 @@ router.get(
       return;
     }
 
-    let userData = {};
+    let userData = [];
 
     for (let i = 0; i < data.length; i++) {
       let day = data[i].action_logged_at.split("T")[0];
-      if (!(day in userData) && data[i].action === "Signed In") {
-        userData[day] = {
+      let index = userData.findIndex((x) => x.day === day);
+
+      if (index === -1 && data[i].action === "Signed In") {
+        userData.push({
+          day: day,
           hours: 0,
           lastAction: "Signed In",
+          id: data[i].id,
           lastActionTimeStamp: data[i].action_logged_at,
-        };
+        });
       } else {
         if (data[i].action === "Signed Out") {
-          var startTime = moment(userData[day].lastActionTimeStamp);
+          var startTime = moment(userData[index].lastActionTimeStamp);
           var endTime = moment(data[i].action_logged_at);
           var duration = endTime.diff(startTime, "minutes");
-          userData[day].hours += roundToTwo(duration / 60);
-          userData[day].lastAction = data[i].action;
-          userData[day].lastActionTimeStamp = data[i].action_logged_at;
+          userData[index].hours += roundToTwo(duration / 60);
+          userData[index].lastAction = data[i].action;
+          userData[index].lastActionTimeStamp = data[i].action_logged_at;
         } else if (data[i].action === "Signed In") {
-          userData[day].lastAction = data[i].action;
-          userData[day].lastActionTimeStamp = data[i].action_logged_at;
+          userData[index].lastAction = data[i].action;
+          userData[index].lastActionTimeStamp = data[i].action_logged_at;
         }
       }
     }
+
 
     res.status(200).json({
       data: userData,
@@ -97,34 +102,32 @@ router.get(
       return;
     }
 
-    let userData = {};
+    let userData = [];
 
     for (let i = 0; i < data.length; i++) {
-      if (!(data[i].user_id in userData) && data[i].action === "Signed In") {
-        userData[data[i].user_id] = {
+      let index = userData.findIndex((x) => x.user_id === data[i].user_id);
+      if (index === -1 && data[i].action === "Signed In") {
+        userData.push({
+          user_id: data[i].user_id,
           name: data[i].name,
           hours: 0,
           lastAction: "Signed In",
           lastActionTimeStamp: data[i].action_logged_at,
-        };
+        });
       } else {
         if (data[i].action === "Signed Out") {
-          var startTime = moment(userData[data[i].user_id].lastActionTimeStamp);
+          var startTime = moment(userData[index].lastActionTimeStamp);
           var endTime = moment(data[i].action_logged_at);
           var duration = endTime.diff(startTime, "minutes");
-          userData[data[i].user_id].hours += roundToTwo(duration / 60);
-          userData[data[i].user_id].lastAction = data[i].action;
-          userData[data[i].user_id].lastActionTimeStamp =
-            data[i].action_logged_at;
+          userData[index].hours += roundToTwo(duration / 60);
+          userData[index].lastAction = data[i].action;
+          userData[index].lastActionTimeStamp = data[i].action_logged_at;
         } else if (data[i].action === "Signed In") {
-          userData[data[i].user_id].lastAction = data[i].action;
-          userData[data[i].user_id].lastActionTimeStamp =
-            data[i].action_logged_at;
+          userData[index].lastAction = data[i].action;
+          userData[index].lastActionTimeStamp = data[i].action_logged_at;
         }
       }
     }
-
-    console.log(userData);
 
     res.status(200).json({
       data: userData,

@@ -18,8 +18,6 @@ function App() {
   const [user, setUser] = React.useState(null);
 
   useEffect(() => {
-    console.log(process.env.REACT_APP_SERVER_URL);
-    console.log(document.cookie);
     fetch(process.env.REACT_APP_SERVER_URL + "/auth/login/success", {
       method: "GET",
       credentials: "include",
@@ -37,7 +35,6 @@ function App() {
         return response.json();
       })
       .then((responseJson) => {
-        console.log(responseJson);
         setUser(responseJson.user);
       });
   }, []);

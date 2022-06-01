@@ -113,11 +113,9 @@ router.post(
           });
           return;
         }
-        console.log(data);
         let returnedUser = data.find(
           (user) => user.google_id === req.body.google_id
         );
-        console.log(returnedUser);
         updateBody.present = !returnedUser.present;
       } else if (req.body.present) {
         updateBody.present = req.body.present;
