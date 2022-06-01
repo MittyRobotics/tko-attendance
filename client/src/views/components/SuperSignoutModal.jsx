@@ -19,7 +19,7 @@ function SuperSignoutModal({ user, ssmClicked, setSsmClicked }) {
   const signOutAll = () => {
     if (user.admin) {
       setLoading(true);
-      fetch(process.env.REACT_APP_SERVER_URL + "/signoutAll", {
+      fetch(process.env.REACT_APP_SERVER_URL + "/user/signout", {
         method: "POST",
         credentials: "include",
         headers: {

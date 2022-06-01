@@ -7,6 +7,8 @@ const logger = require("morgan");
 
 const passport = require("passport");
 const authRoutes = require("./routes/auth");
+const userRoutes = require("./routes/users");
+const attendanceRoutes = require("./routes/attendance");
 const indexRoutes = require("./routes/tables");
 const cookieParser = require("cookie-parser");
 const passportSetup = require("./passport-setup");
@@ -55,7 +57,10 @@ app.use(setCache);
 app.use(passport.initialize());
 
 app.use("/auth", authRoutes);
-app.use("/", indexRoutes);
+app.use("/user", userRoutes);
+app.use("/attendance", attendanceRoutes);
+
+// app.use("/", indexRoutes);
 
 app.get("*", (req, res) => {
   res.status(200).json({

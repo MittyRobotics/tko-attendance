@@ -18,19 +18,21 @@ function RosterModal({ getUserList, rosterClicked, setRosterClicked }) {
 
   const submitRosterChange = () => {
     setUpdating(true);
-    fetch(process.env.REACT_APP_SERVER_URL + "/updateUser", {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Credentials": true,
-      },
-      body: JSON.stringify({
-        [rosterClicked[1]]: selectedValue,
-        id: rosterClicked[4],
-      }),
-    })
+    fetch(
+      process.env.REACT_APP_SERVER_URL + `/user/update/${rosterClicked[4]}`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true,
+        },
+        body: JSON.stringify({
+          [rosterClicked[1]]: selectedValue,
+        }),
+      }
+    )
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {

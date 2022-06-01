@@ -89,7 +89,7 @@ function Home({ user }) {
   const adminToggle = () => {
     if (user.admin) {
       setAdminPresentTagClicked(true);
-      fetch(process.env.REACT_APP_SERVER_URL + "/adminPresentToggle", {
+      fetch(process.env.REACT_APP_SERVER_URL + `/user/update/${user.id}`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -98,7 +98,8 @@ function Home({ user }) {
           "Access-Control-Allow-Credentials": true,
         },
         body: JSON.stringify({
-          id: user.google_id,
+          google_id: user.google_id,
+          togglePresent: true,
         }),
       })
         .then((res) => res.json())

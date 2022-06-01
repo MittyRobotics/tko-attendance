@@ -333,7 +333,7 @@ router.post(
           message: "Error: updating user",
           success: false,
         });
-        return;
+        return; 
       }
 
       if (
@@ -423,6 +423,8 @@ router.post(
   async (req, res) => {
     const sortBy = req.body.sortBy;
 
+    let userData = {};
+
     if (sortBy === "date") {
       const parsedDate = req.body.date;
       const { data, error } = await supabase.rpc(`timestamp_text_table`, {
@@ -436,9 +438,6 @@ router.post(
         });
         return;
       }
-      console.log(data);
-
-      let userData = {};
 
       for (let i = 0; i < data.length; i++) {
         if (!(data[i].user_id in userData) && data[i].action === "Signed In") {
@@ -466,15 +465,53 @@ router.post(
           }
         }
       }
+    } else if (sortBy === "user") {
+      const user_id = req.body.user_id;
+      const { data, error } = await supabase
+        .from("attendance")
+        .select("*")
+        .match({ user_id: user_id })
+        .order("action_logged_at", { ascending: true });
 
-      console.log(userData);
+      if (error) {
+        res.json({
+          message: "Error: " + error.message,
+          success: false,
+        });
+        return;
+      }
 
-      res.json({
-        data: data,
-        message: "Success",
-        success: true,
-      });
+      for (let i = 0; i < data.length; i++) {
+        let day = data[i].action_logged_at.split("T")[0];
+        if (!(day in userData) && data[i].action === "Signed In") {
+          userData[day] = {
+            hours: 0,
+            lastAction: "Signed In",
+            lastActionTimeStamp: data[i].action_logged_at,
+          };
+        } else {
+          if (data[i].action === "Signed Out") {
+            var startTime = moment(userData[day].lastActionTimeStamp);
+            var endTime = moment(data[i].action_logged_at);
+            var duration = endTime.diff(startTime, "minutes");
+            userData[day].hours += roundToTwo(duration / 60);
+            userData[day].lastAction = data[i].action;
+            userData[day].lastActionTimeStamp = data[i].action_logged_at;
+          } else if (data[i].action === "Signed In") {
+            userData[day].lastAction = data[i].action;
+            userData[day].lastActionTimeStamp = data[i].action_logged_at;
+          }
+        }
+      }
     }
+
+    console.log(userData);
+
+    res.json({
+      data: userData,
+      message: "Success",
+      success: true,
+    });
   }
 );
 

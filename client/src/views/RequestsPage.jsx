@@ -20,7 +20,7 @@ function RequestsPage() {
   const [buttonsLoading, setButtonsLoading] = useState({});
 
   const getRequests = () => {
-    fetch(process.env.REACT_APP_SERVER_URL + "/allAttendanceRequests", {
+    fetch(process.env.REACT_APP_SERVER_URL + "/attendance/requests", {
       method: "GET",
       credentials: "include",
       headers: {
@@ -44,7 +44,7 @@ function RequestsPage() {
   const sendBulkRequest = async (type, action, button_id) => {
     setButtonsLoading({ ...buttonsLoading, [button_id]: true });
     if (action === "deny") {
-      fetch(process.env.REACT_APP_SERVER_URL + "/updateUserBulk", {
+      fetch(process.env.REACT_APP_SERVER_URL + "/user/update_requested", {
         method: "POST",
         credentials: "include",
         headers: {
@@ -67,7 +67,7 @@ function RequestsPage() {
           }
         });
     } else {
-      fetch(process.env.REACT_APP_SERVER_URL + "/updateAttendanceBulk", {
+      fetch(process.env.REACT_APP_SERVER_URL + "/attendance/update_requested", {
         method: "POST",
         credentials: "include",
         headers: {
@@ -101,7 +101,7 @@ function RequestsPage() {
     b_id += id;
     setButtonsLoading({ ...buttonsLoading, [b_id]: true });
     if (action === "deny") {
-      fetch(process.env.REACT_APP_SERVER_URL + "/updateUser", {
+      fetch(process.env.REACT_APP_SERVER_URL + `/user/update/${id}`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -111,7 +111,6 @@ function RequestsPage() {
         },
         body: JSON.stringify({
           requested_action: "none",
-          id: id,
         }),
       })
         .then((res) => res.json())
@@ -126,21 +125,23 @@ function RequestsPage() {
           }
         });
     } else {
-      fetch(process.env.REACT_APP_SERVER_URL + "/updateAttendance", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true,
-        },
-        body: JSON.stringify({
-          action: type,
-          name: name,
-          timestamp: timestamp,
-          id: id,
-        }),
-      })
+      fetch(
+        process.env.REACT_APP_SERVER_URL + `/attendance/update/user/${id}`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Credentials": true,
+          },
+          body: JSON.stringify({
+            action: type,
+            name: name,
+            timestamp: timestamp,
+          }),
+        }
+      )
         .then((res) => res.json())
         .then((data) => {
           if (data.success) {

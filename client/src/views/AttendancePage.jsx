@@ -25,29 +25,48 @@ function AttendancePage() {
     var dt = new Date(date).toISOString().split("T")[0];
     console.log(dt);
 
-    setDataList(null);
-    fetch(process.env.REACT_APP_SERVER_URL + "/getAttendanceRecords", {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Credentials": true,
-      },
-      body: JSON.stringify({
-        sortBy: sortBy === "By Date" ? "date" : "user",
-        date: dt,
-      }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          setDataList(data.data);
-        } else {
-          setDataList(null);
-          alert("attendance page: " + data.message);
-        }
-      });
+    setDataList(false);
+
+    if (sortBy === "By Date") {
+      fetch(process.env.REACT_APP_SERVER_URL + `/attendance/date/${dt}`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            setDataList(data.data);
+          } else {
+            setDataList(null);
+            alert("attendance page: " + data.message);
+          }
+        });
+    } else {
+      let user_id = 1;
+      fetch(process.env.REACT_APP_SERVER_URL + `/attendance/user/${user_id}`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            setDataList(data.data);
+          } else {
+            setDataList(null);
+            alert("attendance page: " + data.message);
+          }
+        });
+    }
   };
 
   const byDate = (
@@ -59,6 +78,10 @@ function AttendancePage() {
       </div>
       <div className="column">
         {dataList === null ? (
+          <div className="loading-wrapper">
+            <h1 className="date-select-text">Select a Date!</h1>
+          </div>
+        ) : dataList === false ? (
           <div className="loading-wrapper">
             <ReactLoading type="bars" color="teal" />
           </div>

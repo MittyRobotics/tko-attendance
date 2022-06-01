@@ -16,7 +16,7 @@ router.get(
     jwt.sign(
       { id: req.user.google_id },
       process.env.JWT_SECRET,
-      { expiresIn: "2d" },
+      { expiresIn: "1d" },
       (err, token) => {
         if (err) {
           return res.json({
@@ -26,8 +26,8 @@ router.get(
         res.cookie("token", token, {
           maxAge: 24 * 60 * 60 * 100,
           httpOnly: true,
-          sameSite: "none",
-          secure: true,
+          // sameSite: "none",
+          // secure: true,
         });
         res.redirect(303, process.env["CLIENT_URL"]);
       }

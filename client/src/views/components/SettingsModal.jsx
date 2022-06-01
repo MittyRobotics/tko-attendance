@@ -22,7 +22,7 @@ function SettingsModal({ user, settingsClicked, setSettingsClicked }) {
       finalGrade = parseInt(grade.split(" ")[0]);
     }
 
-    fetch(process.env.REACT_APP_SERVER_URL + "/updateUser", {
+    fetch(process.env.REACT_APP_SERVER_URL + `/user/update/${user.id}`, {
       method: "POST",
       credentials: "include",
       headers: {

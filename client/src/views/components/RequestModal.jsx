@@ -27,7 +27,7 @@ function RequestModal({ user, requestClicked, setRequestClicked }) {
   const handleSubmit = () => {
     setSubmitClicked(true);
     setMsg("");
-    fetch(process.env.REACT_APP_SERVER_URL + "/request", {
+    fetch(process.env.REACT_APP_SERVER_URL + `/user/${user.id}/request`, {
       method: "POST",
       credentials: "include",
       headers: {
@@ -37,7 +37,6 @@ function RequestModal({ user, requestClicked, setRequestClicked }) {
       },
       body: JSON.stringify({
         requested_action: request,
-        id: user.id,
       }),
     })
       .then((response) => {
@@ -72,9 +71,9 @@ function RequestModal({ user, requestClicked, setRequestClicked }) {
           <h1 className="modal-desc">
             You may request to{" "}
             <span className="destructive">
-              {user.present ? "sign out" : "sign in"}
+              {user.present ? "sign out of" : "sign into"}
             </span>{" "}
-            of a meeting here.
+            a meeting here.
           </h1>
           <div className="select is-primary">
             <select id="select-request" onChange={handleRequestChange}>

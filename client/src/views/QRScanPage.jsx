@@ -26,7 +26,7 @@ function QRScanPage() {
   const [message, setMessage] = useState("");
 
   const passToBackend = (data) => {
-    fetch(process.env.REACT_APP_SERVER_URL + "/qrscanned", {
+    fetch(process.env.REACT_APP_SERVER_URL + `/user/scan/${data}`, {
       method: "POST",
       credentials: "include",
       headers: {
@@ -34,9 +34,6 @@ function QRScanPage() {
         "Content-Type": "application/json",
         "Access-Control-Allow-Credentials": true,
       },
-      body: JSON.stringify({
-        id: data,
-      }),
     })
       .then((res) => res.json())
       .then((data) => {

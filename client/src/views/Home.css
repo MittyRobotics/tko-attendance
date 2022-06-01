@@ -364,3 +364,13 @@ article {
 .sort-select {
   margin-bottom: 5vh;
 }
+
+.date-select-text {
+  font-family: "Inter", sans-serif;
+  font-weight: 800;
+  font-size: 1.3rem;
+  color: rgb(255, 92, 80);
+  border: 2px dashed black;
+  border-radius: 10px;
+  padding: 5px;
+}

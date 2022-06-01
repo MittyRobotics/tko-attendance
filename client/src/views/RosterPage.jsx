@@ -16,7 +16,7 @@ function RosterPage() {
   const [rosterClicked, setRosterClicked] = useState([false, "", "", [""]]);
 
   const getUserList = () => {
-    fetch(process.env.REACT_APP_SERVER_URL + "/userList", {
+    fetch(process.env.REACT_APP_SERVER_URL + "/user", {
       method: "GET",
       credentials: "include",
       headers: {
