@@ -228,27 +228,50 @@ router.post(
       return;
     }
 
-    const { data: user, error } = await supabase
-      .from("users")
-      .select("id, requested_action")
-      .match({ id: id })
-      .textSearch(
-        "requested_action",
-        req.body.requested_action.split(" ").join(""),
-        {
-          config: "english",
-        }
-      );
-
-    if (error) {
+    if (
+      req.body.requested_action !== "Sign In" &&
+      req.body.requested_action !== "Sign Out"
+    ) {
       res.status(500).json({
-        message: "Error: " + error.message,
+        message: "Error: Invalid Request",
         success: false,
       });
       return;
     }
 
-    if (user.length > 0) {
+    let { data, er } = await supabase
+      .from("users")
+      .select("requested_action, id")
+      .match({ id: id });
+
+    if (er) {
+      res.status(500).json({
+        message: "Error: " + er.message,
+        success: false,
+      });
+      return;
+    }
+
+    data = data[0];
+    console.log(data);
+
+    if (
+      (data.present === true && req.body.requested_action === "Sign In") ||
+      (data.present === false && req.body.requested_action === "Sign Out")
+    ) {
+      res.status(500).json({
+        success: false,
+        message:
+          "Cannot request to sign in or out when already signed in or out",
+      });
+      return;
+    }
+
+    if (
+      data.requested_action.includes(
+        req.body.requested_action.split(" ").join("")
+      )
+    ) {
       res.status(200).json({
         success: false,
         message: "Request Already Sent",
