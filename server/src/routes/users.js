@@ -143,6 +143,13 @@ router.post(
         let returnedUser = data.find(
           (user) => user.google_id === req.body.google_id
         );
+        if (!returnedUser) {
+          res.status(500).json({
+            message: "Error: User not found",
+            success: false,
+          });
+          return;
+        }
         updateBody.present = !returnedUser.present;
       } else if (req.body.present) {
         updateBody.present = req.body.present;
