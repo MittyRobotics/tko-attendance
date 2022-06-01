@@ -1,4 +1,5 @@
 import supabase from "../supabase-setup";
+import moment from "moment";
 
 async function insertNewAttendanceLog(user, action) {
   let { data, error } = await supabase.from("attendance").insert({
@@ -13,10 +14,76 @@ async function insertNewAttendanceLog(user, action) {
   return true;
 }
 
-async function updateUserPresent(google_id, presentValue) {
+async function calculateTotalHours(user_id, finalTimestamp = null) {
+  const { data, error } = await supabase
+    .from("attendance")
+    .select("*")
+    .match({ user_id: user_id })
+    .order("action_logged_at", { ascending: true });
+
+  if (error) {
+    return false;
+  }
+
+  let totalHours = 0;
+  let lastTimestamp = null;
+  let lastAction = null;
+
+  for (let i = 0; i < data.length; i++) {
+    if (data[i].action === "Signed In") {
+      lastTimestamp = data[i].action_logged_at;
+      lastAction = "Signed In";
+    } else if (data[i].action === "Signed Out") {
+      let lastTime = moment(lastTimestamp);
+      let currentTime = moment(data[i].action_logged_at);
+      let duration = currentTime.diff(lastTime, "minutes");
+      totalHours += duration / 60;
+      lastTimestamp = null;
+      lastAction = "Signed Out";
+    }
+  }
+
+  if (lastAction === "Signed In" && finalTimestamp !== null) {
+    let lastTime = moment(lastTimestamp);
+    let currentTime = moment(finalTimestamp);
+    let duration = currentTime.diff(lastTime, "minutes");
+    totalHours += duration / 60;
+  }
+
+  return roundToTwo(totalHours);
+}
+
+async function updateUserPresent(
+  google_id,
+  presentValue,
+  alternateUserId = null
+) {
+  let updateValue = { present: presentValue };
+
+  if (presentValue === false) {
+    if (alternateUserId !== null) {
+      updateValue.total_hours = await calculateTotalHours(
+        alternateUserId,
+        toISOStringLocal()
+      );
+    } else {
+      const { users, error } = await supabase.from("users");
+
+      if (error) {
+        return false;
+      }
+
+      let user = users.find((user) => user.google_id === google_id);
+      updateValue.total_hours = await calculateTotalHours(
+        user.id,
+        toISOStringLocal()
+      );
+    }
+  }
+
   const { data, error } = await supabase
     .from("users")
-    .update({ present: presentValue })
+    .update(updateValue)
     .match({ google_id: google_id });
 
   if (error) {
@@ -26,13 +93,19 @@ async function updateUserPresent(google_id, presentValue) {
 }
 
 function roundToTwo(num) {
-    return +(Math.round(num + "e+2") + "e-2");
-  }
+  return Math.round((num + Number.EPSILON) * 100) / 100;
+}
 
-function toISOStringLocal(d) {
-    var tzoffset = new Date().getTimezoneOffset() * 60000;
-    var localISOTime = new Date(Date.now() - tzoffset).toISOString().slice(0, -1);
-    return localISOTime;
-  }
+function toISOStringLocal() {
+  var tzoffset = new Date().getTimezoneOffset() * 60000;
+  var localISOTime = new Date(Date.now() - tzoffset).toISOString().slice(0, -1);
+  return localISOTime;
+}
 
-module.exports = { insertNewAttendanceLog, updateUserPresent, toISOStringLocal, roundToTwo };
+module.exports = {
+  insertNewAttendanceLog,
+  updateUserPresent,
+  toISOStringLocal,
+  roundToTwo,
+  calculateTotalHours,
+};

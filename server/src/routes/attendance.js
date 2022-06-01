@@ -2,7 +2,7 @@ var express = require("express");
 import supabase from "../supabase-setup";
 const passport = require("passport");
 import moment from "moment";
-import { roundToTwo } from "./helper";
+import { roundToTwo, calculateTotalHours } from "./helper";
 
 const router = express.Router();
 
@@ -56,7 +56,7 @@ router.get(
           var startTime = moment(userData[index].lastActionTimeStamp);
           var endTime = moment(data[i].action_logged_at);
           var duration = endTime.diff(startTime, "minutes");
-          userData[index].hours += roundToTwo(duration / 60);
+          userData[index].hours += duration / 60;
           userData[index].lastAction = data[i].action;
           userData[index].lastActionTimeStamp = data[i].action_logged_at;
         } else if (data[i].action === "Signed In") {
@@ -66,6 +66,10 @@ router.get(
       }
     }
 
+    // round all hour fields to two decimal places
+    for (let i = 0; i < userData.length; i++) {
+      userData[i].hours = roundToTwo(userData[i].hours);
+    }
 
     res.status(200).json({
       data: userData,
@@ -119,7 +123,7 @@ router.get(
           var startTime = moment(userData[index].lastActionTimeStamp);
           var endTime = moment(data[i].action_logged_at);
           var duration = endTime.diff(startTime, "minutes");
-          userData[index].hours += roundToTwo(duration / 60);
+          userData[index].hours += duration / 60;
           userData[index].lastAction = data[i].action;
           userData[index].lastActionTimeStamp = data[i].action_logged_at;
         } else if (data[i].action === "Signed In") {
@@ -127,6 +131,10 @@ router.get(
           userData[index].lastActionTimeStamp = data[i].action_logged_at;
         }
       }
+    }
+
+    for (let i = 0; i < userData.length; i++) {
+      userData[i].hours = roundToTwo(userData[i].hours);
     }
 
     res.status(200).json({
@@ -226,12 +234,21 @@ router.post(
 
     // if timestamp, then request originated from student attendance signin/out request page
     if (req.body.timestamp) {
+      let updateUser = {
+        requested_action: "none",
+        present: updateBody.action === "Signed In" ? true : false,
+      };
+
+      if (updateBody.action === "Signed Out") {
+        updateUser.total_hours = await calculateTotalHours(
+          user_id,
+          req.body.timestamp
+        );
+      }
+
       const { users, err } = await supabase
         .from("users")
-        .update({
-          requested_action: "none",
-          present: updateBody.action === "Signed In" ? true : false,
-        })
+        .update(updateUser)
         .match({ id: user_id });
 
       if (err) {
@@ -281,6 +298,23 @@ router.post(
       updateBody.name = req.body.data[i].name;
       updateBody.action_logged_at =
         req.body.data[i].requested_action.split(",")[1];
+
+      let total_hours = await calculateTotalHours(
+        updateBody.user_id,
+        updateBody.action_logged_at
+      );
+
+      const { users, err } = await supabase
+        .from("users")
+        .update({ total_hours: total_hours }).match({ id: updateBody.user_id });
+
+      if (err) {
+        res.status(500).json({
+          message: "Error: " + err.message,
+          success: false,
+        });
+        return;
+      }
 
       const { data, error } = await supabase
         .from("attendance")

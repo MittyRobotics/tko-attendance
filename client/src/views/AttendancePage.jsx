@@ -150,32 +150,38 @@ function AttendancePage() {
       <div className="column">
         {dataList === null ? (
           <div className="loading-wrapper">
-            <h1 className="date-select-text">No Records On Selected Date!</h1>
+            <h1 className="date-select-text">No Records On Selected Date</h1>
           </div>
         ) : dataList === false ? (
           <div className="loading-wrapper">
             <ReactLoading type="bars" color="teal" />
           </div>
         ) : (
-          dataList.map((user) => {
-            return (
-              <article
-                className="message is-link"
-                key={"bydate-" + user.user_id}
-              >
-                <div className="message-body">
-                  <h1 className="request-title">{user.name}</h1>
-                  <h1>
-                    <span className="td-underline">{user.hours}</span> Hours
-                  </h1>
-                  <h1>
-                    Last <span className="td-italics">{user.lastAction}</span>{" "}
-                    at {parseTimestamp(user.lastActionTimeStamp)}
-                  </h1>
-                </div>
-              </article>
-            );
-          })
+          <div>
+            <h1 className="ats-h1">
+              Total Students:{" "}
+              <span className="td-underline td-bold">{dataList.length}</span>
+            </h1>
+            {dataList.map((user) => {
+              return (
+                <article
+                  className="message is-link"
+                  key={"bydate-" + user.user_id}
+                >
+                  <div className="message-body">
+                    <h1 className="request-title">{user.name}</h1>
+                    <h1>
+                      <span className="td-underline">{user.hours}</span> Hours
+                    </h1>
+                    <h1>
+                      Last <span className="td-italics">{user.lastAction}</span>{" "}
+                      at {parseTimestamp(user.lastActionTimeStamp)}
+                    </h1>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
         )}
       </div>
     </div>
@@ -209,9 +215,7 @@ function AttendancePage() {
             <div className="column">
               {dataList === null ? (
                 <div className="loading-wrapper">
-                  <h1 className="date-select-text">
-                    No Records On Selected Date!
-                  </h1>
+                  <h1 className="date-select-text">No Records Found</h1>
                 </div>
               ) : dataList === false ? (
                 <div className="loading-wrapper">

@@ -5,6 +5,7 @@ import {
   insertNewAttendanceLog,
   toISOStringLocal,
   updateUserPresent,
+  calculateTotalHours,
 } from "./helper";
 
 const router = express.Router();
@@ -123,16 +124,18 @@ router.post(
       if (req.body.admin) {
         updateBody.admin = req.body.admin;
       }
-      if (req.body.total_hours) {
-        if (req.user.admin) {
-          updateBody.total_hours = req.body.total_hours;
-        }
-      }
       if (req.body.requested_action) {
         if (req.user.admin) {
           updateBody.requested_action = req.body.requested_action;
         }
       }
+    }
+
+    if (updateBody.present === "false") {
+      updateBody.total_hours = await calculateTotalHours(
+        id,
+        toISOStringLocal()
+      );
     }
 
     const { data, error } = await supabase
@@ -253,8 +256,7 @@ router.post(
       return;
     }
 
-    var now = new Date();
-    var local_timestamp = toISOStringLocal(now);
+    var local_timestamp = toISOStringLocal();
 
     let updateText =
       req.body.requested_action.split(" ").join("") + "," + local_timestamp;
@@ -303,7 +305,7 @@ router.post(
       ? user.name + " Signed In"
       : user.name + " Signed Out";
 
-    if (!(await updateUserPresent(google_id, updatedValue))) {
+    if (!(await updateUserPresent(google_id, updatedValue, user.id))) {
       res.status(500).json({
         message: "Error: updating user",
         success: false,
@@ -356,7 +358,7 @@ router.post(
 
     for (var i = 0; i < data.length; i++) {
       if (data[i].present) {
-        if (!(await updateUserPresent(data[i].google_id, false))) {
+        if (!(await updateUserPresent(data[i].google_id, false, data[i].id))) {
           res.status(500).json({
             message: "Error: updating user " + i,
             success: false,

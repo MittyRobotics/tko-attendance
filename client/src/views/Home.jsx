@@ -57,7 +57,7 @@ function Home({ user }) {
           className="button is-warning block action-btn hvr-grow"
           onClick={() => (window.location = "/requests")}
         >
-          <FontAwesomeIcon icon={faArrowRightToBracket} /> Sign In/Out Requests
+          <FontAwesomeIcon icon={faArrowRightToBracket} /> Requests
         </button>
         <br></br>
         <button
@@ -79,7 +79,7 @@ function Home({ user }) {
           className="button is-danger is-light block action-btn hvr-grow"
           onClick={() => setSsmClicked(true)}
         >
-          <FontAwesomeIcon icon={faBolt} /> Signout All Students
+          <FontAwesomeIcon icon={faBolt} /> Sign Out All
         </button>
         <br></br>
       </div>
@@ -189,6 +189,8 @@ function Home({ user }) {
               </Tippy>
             </div>
           </div>
+          <br></br>
+
           {user.admin ? adminActions : null}
         </div>
         <SettingsModal
