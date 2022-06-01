@@ -96,12 +96,38 @@ router.post(
   async (req, res) => {
     const { id } = req.params;
 
+    const validGrades = [9, 10, 11, 12, -1];
+    const validDepts = [
+      "FRC Programming",
+      "JV Programming",
+      "FRC Electrical",
+      "JV Electrical",
+      "FRC Mechanical",
+      "JV Mechanical",
+      "Operations",
+      "No",
+    ];
+
     let updateBody = {};
 
     if (req.body.department) {
+      if (!validDepts.includes(req.body.department)) {
+        res.status(500).json({
+          message: "Error: Invalid Department",
+          success: false,
+        });
+        return;
+      }
       updateBody.department = req.body.department;
     }
     if (req.body.current_grade) {
+      if (!validGrades.includes(req.body.current_grade)) {
+        res.status(500).json({
+          message: "Error: Invalid Grade",
+          success: false,
+        });
+        return;
+      }
       updateBody.current_grade = req.body.current_grade;
     }
     if (req.user.admin) {
@@ -241,7 +267,7 @@ router.post(
 
     let { data, er } = await supabase
       .from("users")
-      .select("requested_action, id")
+      .select("requested_action, present, id")
       .match({ id: id });
 
     if (er) {
