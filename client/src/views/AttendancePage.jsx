@@ -31,6 +31,16 @@ function AttendancePage() {
     12: "December",
   };
 
+  const hoursToHoursMinutes = (num) => {
+    var decimalTime = num;
+    decimalTime = decimalTime * 60 * 60;
+    var hours = Math.floor(decimalTime / (60 * 60));
+    decimalTime = decimalTime - hours * 60 * 60;
+    var minutes = Math.floor(decimalTime / 60);
+
+    return hours + " Hrs. " + minutes + " Min.";
+  };
+
   const resetUserList = () => {
     setUserList(null);
     fetch(process.env.REACT_APP_SERVER_URL + "/user/", {
@@ -171,7 +181,9 @@ function AttendancePage() {
                   <div className="message-body">
                     <h1 className="request-title">{user.name}</h1>
                     <h1>
-                      <span className="td-underline">{user.hours}</span> Hours
+                      <span className="td-underline">
+                        {hoursToHoursMinutes(user.hours)}
+                      </span>
                     </h1>
                     <h1>
                       Last <span className="td-italics">{user.lastAction}</span>{" "}
@@ -238,8 +250,9 @@ function AttendancePage() {
                             day[2]}
                         </h1>
                         <h1>
-                          <span className="td-underline">{date.hours}</span>{" "}
-                          Hours
+                          <span className="td-underline">
+                            {hoursToHoursMinutes(date.hours)}
+                          </span>
                         </h1>
                         <h1>
                           Last

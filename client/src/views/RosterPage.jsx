@@ -16,6 +16,16 @@ function RosterPage() {
 
   const [rosterClicked, setRosterClicked] = useState([false, "", "", [""]]);
 
+  const hoursToHoursMinutes = (num) => {
+    var decimalTime = num;
+    decimalTime = decimalTime * 60 * 60;
+    var hours = Math.floor(decimalTime / (60 * 60));
+    decimalTime = decimalTime - hours * 60 * 60;
+    var minutes = Math.floor(decimalTime / 60);
+
+    return [hours, minutes];
+  };
+
   const getUserList = () => {
     fetch(process.env.REACT_APP_SERVER_URL + "/user", {
       method: "GET",
@@ -114,7 +124,16 @@ function RosterPage() {
                     {user.current_grade === -1 ? "Not Set" : user.current_grade}
                   </span>
                 </td>
-                <td className="td-italics">{user.total_hours}</td>
+                <td>
+                  <span className="td-bold">
+                    {hoursToHoursMinutes(user.total_hours)[0]}
+                  </span>{" "}
+                  Hrs.{" "}
+                  <span className="td-bold">
+                    {hoursToHoursMinutes(user.total_hours)[1]}
+                  </span>{" "}
+                  Min.
+                </td>
                 <td>
                   <span
                     className={
