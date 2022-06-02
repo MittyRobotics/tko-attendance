@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import QrReader from "react-qr-scanner";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleLeft } from "@fortawesome/free-solid-svg-icons";
+import { faCamera, faCircleLeft } from "@fortawesome/free-solid-svg-icons";
 
 import "bulma/css/bulma.min.css";
 import "animate.css";
@@ -24,6 +24,7 @@ function QRScanPage() {
   };
 
   const [message, setMessage] = useState("");
+  const [camera, setCamera] = useState("rear");
 
   const passToBackend = (data) => {
     fetch(process.env.REACT_APP_SERVER_URL + `/user/scan/${data}`, {
@@ -63,15 +64,26 @@ function QRScanPage() {
           <h1 className="email">
             Hold scanner in front of QR code to sign students in and out.
           </h1>
+          <button
+            className="button is-link cam-flip"
+            onClick={() => setCamera(!camera)}
+          >
+            <FontAwesomeIcon icon={faCamera} />{" "}
+            {camera === "rear" ? "Rear Cam" : "Front Cam"}
+          </button>
         </div>
+
         <div id="qr-wrapper" className="container qr-wrapper block">
           <QrReader
-            facingMode="rear"
+            facingMode={camera}
             onScan={(data) => {
               if (data !== null) passToBackend(data);
             }}
-            onError={(err) => {}}
-            delay={2000}
+            onError={(err) => {
+              blinkFail();
+              setMessage(err);
+            }}
+            delay={1400}
             style={{ maxHeight: "50vh", margin: "0 auto" }}
           />
         </div>
