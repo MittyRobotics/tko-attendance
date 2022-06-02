@@ -141,7 +141,10 @@ function Home({ user }) {
           <h1 className="name">{user.name}</h1>
           <h2 className="email">{user.email.split("@")[0]}</h2>
           <h3 className="department-grade">
-            {user.department} Department | Grade {user.current_grade}
+            {user.department} Department |{" "}
+            {user.current_grade === -1
+              ? "No Grade"
+              : "Grade " + user.current_grade}
           </h3>
           <span
             className={
