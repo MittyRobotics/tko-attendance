@@ -66,6 +66,7 @@ function QRScanPage() {
         </div>
         <div id="qr-wrapper" className="container qr-wrapper block">
           <QrReader
+            facingMode="rear"
             onScan={(data) => {
               if (data !== null) passToBackend(data);
             }}
