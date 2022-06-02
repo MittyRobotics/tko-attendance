@@ -1,19 +1,19 @@
+import { ExtractJwt } from "passport-jwt";
 import supabase from "./supabase-setup";
 
 const passport = require("passport");
-const GoogleStrategy = require("passport-google-oauth20");
+const GoogleOneTapStrategy =
+  require("passport-google-one-tap").GoogleOneTapStrategy;
 const JwtStrategy = require("passport-jwt").Strategy;
 
 passport.use(
-  new GoogleStrategy(
+  new GoogleOneTapStrategy(
     {
       clientID: process.env["GOOGLE_CLIENT_ID"],
       clientSecret: process.env["GOOGLE_CLIENT_SECRET"],
-      callbackURL: "/auth/google/redirect",
-      scope: ["profile", "email"],
-      passReqToCallback: true,
+      verifyCsrfToken: false,
     },
-    async (_request, _accessToken, _refreshToken, profile, cb) => {
+    async (profile, cb) => {
       let { data: users, error } = await supabase.from("users");
 
       if (error) {
@@ -45,13 +45,7 @@ passport.use(
 passport.use(
   new JwtStrategy(
     {
-      jwtFromRequest: (req) => {
-        let token = null;
-        if (req && req.cookies) {
-          token = req.cookies.token;
-        }
-        return token;
-      },
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: process.env["JWT_SECRET"],
     },
     async (jwtPayload, done) => {
@@ -65,7 +59,7 @@ passport.use(
         }
 
         done(null, user);
-      } catch(e) {
+      } catch (e) {
         done(e, false);
       }
     }

@@ -18,25 +18,35 @@ function App() {
   const [user, setUser] = React.useState(null);
 
   useEffect(() => {
-    fetch(process.env.REACT_APP_SERVER_URL + "/auth/login/success", {
-      method: "GET",
-      credentials: "include",
-      mode: "cors",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Credentials": true,
-      },
-    })
-      .then((response) => {
-        if (response.status === 401) {
-          setUser(false);
-        }
-        return response.json();
+    if (localStorage.getItem("token")) {
+      fetch(process.env.REACT_APP_SERVER_URL + "/auth/login/success", {
+        method: "GET",
+        credentials: "include",
+        mode: "cors",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true,
+        },
       })
-      .then((responseJson) => {
-        setUser(responseJson.user);
-      });
+        .then((response) => {
+          if (response.status === 401) {
+            return {
+              user: false,
+            };
+          }
+          return response.json();
+        })
+        .then((responseJson) => {
+          if (!responseJson.user) {
+            setUser(false);
+          }
+          setUser(responseJson.user);
+        });
+    } else {
+      setUser(false);
+    }
   }, []);
 
   if (user === null) {

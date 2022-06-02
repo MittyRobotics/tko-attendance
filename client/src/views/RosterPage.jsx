@@ -31,6 +31,7 @@ function RosterPage() {
       method: "GET",
       credentials: "include",
       headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
         Accept: "application/json",
         "Content-Type": "application/json",
         "Access-Control-Allow-Credentials": true,
@@ -45,7 +46,6 @@ function RosterPage() {
             res[v.present === true ? "yes" : "no"] =
               (res[v.present === true ? "yes" : "no"] || 0) + 1;
           });
-          console.log(res);
           setPresentCount([res["yes"], res["no"] + res["yes"]]);
         } else {
           window.location = "/";

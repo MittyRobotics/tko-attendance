@@ -286,7 +286,6 @@ router.post(
     }
 
     data = data[0];
-    console.log(data);
 
     if (
       (data.present === true && req.body.requested_action === "Sign In") ||

@@ -4,15 +4,13 @@ const router = express.Router();
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
 
-router.get("/google", passport.authenticate("google"));
-
-router.get(
-  "/google/redirect",
-  passport.authenticate("google", {
+router.post(
+  "/google/one-tap/callback",
+  passport.authenticate("google-one-tap", {
     session: false,
     failureRedirect: process.env["CLIENT_URL"],
   }),
-  (req, res) => {
+  async (req, res) => {
     jwt.sign(
       { id: req.user.google_id },
       process.env.JWT_SECRET,
@@ -23,22 +21,9 @@ router.get(
             token: null,
           });
         }
-        res.cookie(
-          "token",
+        res.status(200).json({
           token,
-          process.env["CLIENT_URL"].includes("localhost")
-            ? {
-                maxAge: 24 * 60 * 60 * 100,
-                httpOnly: true,
-              }
-            : {
-                maxAge: 24 * 60 * 60 * 100,
-                httpOnly: true,
-                sameSite: "none",
-                secure: true,
-              }
-        );
-        res.redirect(303, process.env["CLIENT_URL"]);
+        });
       }
     );
   }
@@ -53,10 +38,5 @@ router.get(
     });
   }
 );
-
-router.get("/logout", (req, res) => {
-  res.clearCookie("token");
-  res.redirect(process.env["CLIENT_URL"]);
-});
 
 module.exports = router;

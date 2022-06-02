@@ -47,6 +47,7 @@ function AttendancePage() {
       method: "GET",
       credentials: "include",
       headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
         Accept: "application/json",
         "Content-Type": "application/json",
         "Access-Control-Allow-Credentials": true,
@@ -85,6 +86,7 @@ function AttendancePage() {
       method: "GET",
       credentials: "include",
       headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
         Accept: "application/json",
         "Content-Type": "application/json",
         "Access-Control-Allow-Credentials": true,
@@ -129,6 +131,7 @@ function AttendancePage() {
         method: "GET",
         credentials: "include",
         headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
           Accept: "application/json",
           "Content-Type": "application/json",
           "Access-Control-Allow-Credentials": true,

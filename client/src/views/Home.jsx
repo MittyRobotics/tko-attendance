@@ -37,7 +37,8 @@ function Home({ user }) {
     setSignoutClicked(true);
     setTimeout(() => {
       setSignoutClicked(false);
-      window.location = process.env.REACT_APP_SERVER_URL + "/auth/logout";
+      localStorage.removeItem("token");
+      window.location.reload();
     }, 1000);
   };
 
@@ -93,6 +94,7 @@ function Home({ user }) {
         method: "POST",
         credentials: "include",
         headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
           Accept: "application/json",
           "Content-Type": "application/json",
           "Access-Control-Allow-Credentials": true,

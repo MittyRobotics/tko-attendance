@@ -30,6 +30,7 @@ function QRScanPage() {
       method: "POST",
       credentials: "include",
       headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
         Accept: "application/json",
         "Content-Type": "application/json",
         "Access-Control-Allow-Credentials": true,
