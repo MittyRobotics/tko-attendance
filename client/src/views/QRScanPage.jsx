@@ -79,10 +79,7 @@ function QRScanPage() {
             onScan={(data) => {
               if (data !== null) passToBackend(data);
             }}
-            onError={(err) => {
-              blinkFail();
-              setMessage(err);
-            }}
+            onError={(err) => {}}
             delay={1400}
             style={{ maxHeight: "50vh", margin: "0 auto" }}
           />
