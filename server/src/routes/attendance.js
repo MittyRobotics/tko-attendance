@@ -8,6 +8,55 @@ const router = express.Router();
 
 // mounted at /attendance/
 
+async function recordByUserId(user_id) {
+  const { data, error } = await supabase
+    .from("attendance")
+    .select("*")
+    .match({ user_id: user_id })
+    .order("action_logged_at", { ascending: true });
+
+  if (error) {
+    console.log(error);
+    return false;
+  }
+
+  let userData = [];
+
+  for (let i = 0; i < data.length; i++) {
+    let day = data[i].action_logged_at.split("T")[0];
+    let index = userData.findIndex((x) => x.day === day);
+
+    if (index === -1 && data[i].action === "Signed In") {
+      userData.push({
+        day: day,
+        hours: 0,
+        lastAction: "Signed In",
+        id: data[i].id,
+        lastActionTimeStamp: data[i].action_logged_at,
+      });
+    } else {
+      if (data[i].action === "Signed Out") {
+        var startTime = moment(userData[index].lastActionTimeStamp);
+        var endTime = moment(data[i].action_logged_at);
+        var duration = endTime.diff(startTime, "minutes");
+        userData[index].hours += duration / 60;
+        userData[index].lastAction = data[i].action;
+        userData[index].lastActionTimeStamp = data[i].action_logged_at;
+      } else if (data[i].action === "Signed In") {
+        userData[index].lastAction = data[i].action;
+        userData[index].lastActionTimeStamp = data[i].action_logged_at;
+      }
+    }
+  }
+
+  // round all hour fields to two decimal places
+  for (let i = 0; i < userData.length; i++) {
+    userData[i].hours = roundToTwo(userData[i].hours);
+  }
+
+  return userData;
+}
+
 // get attendance records by user id
 router.get(
   "/user/:user_id",
@@ -23,52 +72,14 @@ router.get(
 
     const { user_id } = req.params;
 
-    const { data, error } = await supabase
-      .from("attendance")
-      .select("*")
-      .match({ user_id: user_id })
-      .order("action_logged_at", { ascending: true });
+    const userData = await recordByUserId(user_id);
 
-    if (error) {
+    if (userData === false) {
       res.status(500).json({
-        message: "Error: " + error.message,
+        message: "Error: could not get attendance records",
         success: false,
       });
       return;
-    }
-
-    let userData = [];
-
-    for (let i = 0; i < data.length; i++) {
-      let day = data[i].action_logged_at.split("T")[0];
-      let index = userData.findIndex((x) => x.day === day);
-
-      if (index === -1 && data[i].action === "Signed In") {
-        userData.push({
-          day: day,
-          hours: 0,
-          lastAction: "Signed In",
-          id: data[i].id,
-          lastActionTimeStamp: data[i].action_logged_at,
-        });
-      } else {
-        if (data[i].action === "Signed Out") {
-          var startTime = moment(userData[index].lastActionTimeStamp);
-          var endTime = moment(data[i].action_logged_at);
-          var duration = endTime.diff(startTime, "minutes");
-          userData[index].hours += duration / 60;
-          userData[index].lastAction = data[i].action;
-          userData[index].lastActionTimeStamp = data[i].action_logged_at;
-        } else if (data[i].action === "Signed In") {
-          userData[index].lastAction = data[i].action;
-          userData[index].lastActionTimeStamp = data[i].action_logged_at;
-        }
-      }
-    }
-
-    // round all hour fields to two decimal places
-    for (let i = 0; i < userData.length; i++) {
-      userData[i].hours = roundToTwo(userData[i].hours);
     }
 
     res.status(200).json({
@@ -81,8 +92,26 @@ router.get(
 
 // get today's attendance by user id
 router.get("/user/:id/today", async (req, res) => {
+  const { id } = req.params;
+  const userData = await recordByUserId(id);
 
-})
+  if (userData === false) {
+    res.status(500).json({
+      message: "Error: could not get attendance records",
+      success: false,
+    });
+    return;
+  }
+
+  const today = moment().format("YYYY-MM-DD");
+  const todayData = userData.filter((x) => x.day === today);
+
+  res.status(200).json({
+    data: todayData,
+    message: "Success",
+    success: true,
+  });
+});
 
 // get attendance records by date
 router.get(
@@ -98,6 +127,22 @@ router.get(
     }
 
     const { date } = req.params;
+
+    // check for valid date format
+    if (!moment(date, "YYYY-MM-DD", true).isValid()) {
+      res.status(400).json({
+        message: "Error: invalid date format",
+        success: false,
+      });
+      return;
+    }
+
+    // if(date.split("-").length - 1 !== 2) {
+    //   res.status(400).json({
+    //     message: "Error: invalid date format",
+    //     success: false,
+    //   });
+    // }
 
     const { data, error } = await supabase.rpc(`timestamp_text_table`, {
       datevalue: date,
@@ -311,7 +356,8 @@ router.post(
 
       const { users, err } = await supabase
         .from("users")
-        .update({ total_hours: total_hours }).match({ id: updateBody.user_id });
+        .update({ total_hours: total_hours })
+        .match({ id: updateBody.user_id });
 
       if (err) {
         res.status(500).json({

@@ -121,7 +121,7 @@ router.post(
       updateBody.department = req.body.department;
     }
     if (req.body.current_grade) {
-      if (!validGrades.includes(req.body.current_grade)) {
+      if (!validGrades.includes(parseInt(req.body.current_grade))) {
         res.status(500).json({
           message: "Error: Invalid Grade",
           success: false,

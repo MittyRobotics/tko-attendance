@@ -224,6 +224,14 @@
   width: fit-content;
 }
 
+.loading-wrapper-modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  height: 10vh;
+}
+
 @media (max-width: 480px) {
   .requests-col {
     margin-top: 5vh;
