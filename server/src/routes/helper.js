@@ -28,8 +28,15 @@ async function calculateTotalHours(user_id, finalTimestamp = null) {
   let totalHours = 0;
   let lastTimestamp = null;
   let lastAction = null;
+  let timestamps = [];
 
   for (let i = 0; i < data.length; i++) {
+    let day = data[i].action_logged_at.split("T")[0];
+    if (!timestamps.includes(day) && data[i].action === "Signed In") {
+      timestamps.push(day);
+    } else if (!timestamps.includes(day) && data[i].action === "Signed Out") {
+      continue;
+    }
     if (data[i].action === "Signed In") {
       lastTimestamp = data[i].action_logged_at;
       lastAction = "Signed In";

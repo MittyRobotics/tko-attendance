@@ -34,6 +34,8 @@ async function recordByUserId(user_id) {
         id: data[i].id,
         lastActionTimeStamp: data[i].action_logged_at,
       });
+    } else if (index === -1 && data[i].action === "Signed Out") {
+      continue;
     } else {
       if (data[i].action === "Signed Out") {
         var startTime = moment(userData[index].lastActionTimeStamp);
@@ -168,6 +170,8 @@ router.get(
           lastAction: "Signed In",
           lastActionTimeStamp: data[i].action_logged_at,
         });
+      } else if (index === -1 && data[i].action === "Signed Out") {
+        continue;
       } else {
         if (data[i].action === "Signed Out") {
           var startTime = moment(userData[index].lastActionTimeStamp);

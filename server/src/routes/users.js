@@ -164,7 +164,7 @@ router.post(
       }
     }
 
-    if (updateBody.present === "false") {
+    if (updateBody.present === false || updateBody.present === "false") {
       updateBody.total_hours = await calculateTotalHours(
         id,
         toISOStringLocal()
