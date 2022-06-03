@@ -103,6 +103,7 @@ function StatsModal({ user, statsClicked, setStatsClicked }) {
           )}
         </div>
       </div>
+
       <button
         className="modal-close is-large"
         aria-label="close"
