@@ -91,6 +91,14 @@
   padding: 2%;
 }
 
+.stats-title {
+  font-family: "Inter", sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  color: teal;
+  padding: 2%;
+}
+
 .modal-desc {
   font-family: "Inter", sans-serif;
   font-size: 1.1rem;

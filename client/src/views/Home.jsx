@@ -17,6 +17,7 @@ import {
   faBolt,
   faGear,
   faArrowRightFromBracket,
+  faFileAlt,
 } from "@fortawesome/free-solid-svg-icons";
 
 import "bulma/css/bulma.min.css";
@@ -24,11 +25,13 @@ import "animate.css";
 import "hover.css";
 import "./Home.css";
 import SuperSignoutModal from "./components/SuperSignoutModal";
+import StatsModal from "./components/StatsModal";
 
 function Home({ user }) {
   const [signoutClicked, setSignoutClicked] = useState(false);
   const [settingsClicked, setSettingsClicked] = useState(false);
   const [qrClicked, setQrClicked] = useState(false);
+  const [statsClicked, setStatsClicked] = useState(false);
   const [requestClicked, setRequestClicked] = useState(false);
   const [adminPresentTagClicked, setAdminPresentTagClicked] = useState(false);
   const [ssmClicked, setSsmClicked] = useState(false);
@@ -182,6 +185,13 @@ function Home({ user }) {
                 Request {user.present ? "Sign Out" : "Sign In"}
               </button>
               <br></br>
+              <button
+                className="button is-link block action-btn hvr-grow"
+                onClick={() => setStatsClicked(true)}
+              >
+                <FontAwesomeIcon icon={faFileAlt} /> My Stats
+              </button>
+              <br></br>
               <Tippy
                 content="Under Construction ™ ® ©"
                 animation="shift-toward"
@@ -212,6 +222,11 @@ function Home({ user }) {
           user={user}
           requestClicked={requestClicked}
           setRequestClicked={setRequestClicked}
+        />
+        <StatsModal
+          user={user}
+          statsClicked={statsClicked}
+          setStatsClicked={setStatsClicked}
         />
         <SuperSignoutModal
           user={user}

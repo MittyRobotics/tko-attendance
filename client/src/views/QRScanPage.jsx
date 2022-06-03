@@ -66,7 +66,7 @@ function QRScanPage() {
           </h1>
           <button
             className="button is-link cam-flip"
-            onClick={() => setCamera(!camera)}
+            onClick={() => setCamera(camera === "rear" ? "front" : "rear")}
           >
             <FontAwesomeIcon icon={faCamera} />{" "}
             {camera === "rear" ? "Rear Cam" : "Front Cam"}

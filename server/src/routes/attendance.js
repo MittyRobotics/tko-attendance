@@ -79,6 +79,11 @@ router.get(
   }
 );
 
+// get today's attendance by user id
+router.get("/user/:id/today", async (req, res) => {
+
+})
+
 // get attendance records by date
 router.get(
   "/date/:date",
