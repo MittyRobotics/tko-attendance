@@ -1,8 +1,15 @@
 import React, { useRef, useEffect, useState } from "react";
 import ReactLoading from "react-loading";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import "bulma/css/bulma.min.css";
 import "./Login.css";
+import {
+  faCoffee,
+  faHeart,
+  faRocket,
+  faStar,
+} from "@fortawesome/free-solid-svg-icons";
 
 function Login() {
   const divRef = useRef(null);
@@ -80,6 +87,18 @@ function Login() {
           )}
         </div>
       </section>
+      <div className="made-by">
+        <p>
+          <FontAwesomeIcon icon={faHeart} /> &nbsp;&nbsp;Made by{" "}
+          <span
+            onClick={() =>
+              (window.location = "https://github.com/Rohan-Bansal")
+            }
+          >
+            Rohan
+          </span>
+        </p>
+      </div>
     </div>
   );
 }

@@ -48,3 +48,35 @@
   margin: 0 auto;
   text-align: center;
 }
+
+.made-by {
+  font-family: "Inter", sans-serif;
+  position: absolute;
+  right: 20px;
+  bottom: 10px;
+  font-size: 18px;
+}
+
+.made-by span {
+  color: #8e74ee;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.made-by svg {
+  color: #8e74ee;
+  font-weight: 800;
+}
+
+/* made-by centered on mobile devices */
+@media (max-width: 768px) {
+  .made-by {
+    position: absolute;
+    right: 50%;
+    transform: translateX(50%);
+    bottom: 10px;
+  }
+  .login-msg {
+    width: 100%;
+  }
+}
