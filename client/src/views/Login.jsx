@@ -4,12 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import "bulma/css/bulma.min.css";
 import "./Login.css";
-import {
-  faCoffee,
-  faHeart,
-  faRocket,
-  faStar,
-} from "@fortawesome/free-solid-svg-icons";
+import { faHeart } from "@fortawesome/free-solid-svg-icons";
 
 function Login() {
   const divRef = useRef(null);

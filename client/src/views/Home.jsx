@@ -18,7 +18,6 @@ import {
   faGear,
   faArrowRightFromBracket,
   faFileAlt,
-  faHeart,
 } from "@fortawesome/free-solid-svg-icons";
 
 import "bulma/css/bulma.min.css";
