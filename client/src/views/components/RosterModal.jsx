@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 function RosterModal({ getUserList, rosterClicked, setRosterClicked }) {
   const [selectedValue, setSelectedValue] = useState(rosterClicked[3][0]);
   const [updating, setUpdating] = useState(false);
-
+  
   useEffect(() => {
     setSelectedValue(rosterClicked[3][0]);
   }, [rosterClicked]);

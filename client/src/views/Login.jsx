@@ -72,8 +72,15 @@ function Login() {
 
         <div className="login-msg">
           {loading ? (
-            <div className="loading-wrapper-modal">
-              <ReactLoading type="bars" color="teal" />
+            <div>
+              <div>
+                <div className="loading-wrapper-modal">
+                  <ReactLoading type="bars" color="teal" />
+                </div>
+              </div>
+              <div>
+                <p>Spinning Up Dynos...</p>
+              </div>
             </div>
           ) : (
             <div className="google-auth-wrapper">

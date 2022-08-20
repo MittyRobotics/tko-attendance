@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import ReactLoading from "react-loading";
+import $ from "jquery";
 
 import "bulma/css/bulma.min.css";
+import "datatables.net-bm/css/dataTables.bulma.min.css";
+import "datatables.net-bm/js/dataTables.bulma.min.js";
+
 import "animate.css";
 import "hover.css";
 import "./Home.css";
@@ -50,6 +54,14 @@ function RosterPage() {
         } else {
           window.location = "/";
         }
+      })
+      .then(() => {
+        $(() => {
+          $("#rosterTable").DataTable({
+            info: false,
+            paging: false,
+          });
+        });
       });
   };
 
@@ -59,7 +71,7 @@ function RosterPage() {
 
   const tableElement = (
     <div className="table-container">
-      <table className="table is-fullwidth">
+      <table id="rosterTable" className="table is-fullwidth">
         <thead>
           <tr>
             <th>ID</th>

@@ -245,6 +245,12 @@
 .table-container {
   border: 4px solid rgb(71, 173, 173);
   border-radius: 10px;
+  background-color: #ffffff;
+  padding: 10px;
+}
+
+#rosterTable_filter label {
+  font-weight: 800;
 }
 
 td {
