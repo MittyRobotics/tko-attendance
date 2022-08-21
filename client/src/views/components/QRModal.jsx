@@ -1,7 +1,7 @@
 import { faCircleXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
-import QRCode from "react-qr-code";
+import { QRCodeSVG } from "qrcode.react";
 
 function QRModal({ user, qrClicked, setQrClicked }) {
   return (
@@ -13,8 +13,18 @@ function QRModal({ user, qrClicked, setQrClicked }) {
       <div className="modal-content">
         <div className="box">
           <div className="qr-code-container">
-            {/* qr code color to teal */}
-            <QRCode value={user.google_id} size={250} fgColor={"teal"} />
+            <QRCodeSVG
+              value={user.google_id}
+              size={256}
+              fgColor={"#74ABEE"}
+              level={"H"}
+              imageSettings={{
+                src: require("../../img/blurple_tko_head.png"),
+                height: 64,
+                width: 64,
+                excavate: true,
+              }}
+            />
           </div>
           <h1 className="modal-title">{user.name}</h1>
           <br></br>

@@ -52,6 +52,11 @@ passport.use(
       try {
         const id = jwtPayload.id;
         let { data: users, error } = await supabase.from("users");
+
+        if (!users) {
+          return done(error, false);
+        }
+
         var user = users.find((user) => user.google_id === id);
 
         if (error || !user) {

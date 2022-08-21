@@ -22,6 +22,16 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
   height: 100vh;
   width: 100vw;
+}
+
+.spinning-dynos {
+  margin-top: 20px;
+  font-weight: 800;
+  background: linear-gradient(to right, #ef5350, #f48fb1, #7e57c2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }

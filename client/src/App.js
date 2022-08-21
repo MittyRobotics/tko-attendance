@@ -51,8 +51,15 @@ function App() {
 
   if (user === null) {
     return (
-      <div className="loading-bars">
-        <ReactLoading type="spin" color="teal" />
+      <div>
+        <div className="loading-bars">
+          <div>
+            <ReactLoading type="spin" color="teal" />
+          </div>
+          <div>
+            <h1 className="spinning-dynos">Fetching Information...</h1>
+          </div>
+        </div>
       </div>
     );
   }

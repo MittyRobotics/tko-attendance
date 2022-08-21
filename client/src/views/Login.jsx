@@ -74,7 +74,7 @@ function Login() {
                 </div>
               </div>
               <div>
-                <p>Spinning Up Dynos...</p>
+                <h1 className="spinning-dynos">Spinning Up Dynos...</h1>
               </div>
             </div>
           ) : (

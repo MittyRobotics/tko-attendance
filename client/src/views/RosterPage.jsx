@@ -56,6 +56,9 @@ function RosterPage() {
         }
       })
       .then(() => {
+        if ($.fn.dataTable.isDataTable("#rosterTable")) {
+          $("#rosterTable").DataTable().destroy();
+        }
         $(() => {
           $("#rosterTable").DataTable({
             info: false,

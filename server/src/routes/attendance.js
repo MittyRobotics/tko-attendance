@@ -138,14 +138,7 @@ router.get(
       });
       return;
     }
-
-    // if(date.split("-").length - 1 !== 2) {
-    //   res.status(400).json({
-    //     message: "Error: invalid date format",
-    //     success: false,
-    //   });
-    // }
-
+    
     const { data, error } = await supabase.rpc(`timestamp_text_table`, {
       datevalue: date,
     });
