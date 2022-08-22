@@ -199,11 +199,16 @@ function RequestsPage() {
                 : "")
             }
             onClick={() =>
-              sendBulkRequest(
-                type === "Sign In" ? "Signed In" : "Signed Out",
-                "grant",
-                "g-all" + (type === "Sign In" ? "s" : "o")
-              )
+              (type === "Sign In"
+                ? requests.signinrequests
+                : requests.signoutrequests
+              ).length !== 0
+                ? sendBulkRequest(
+                    type === "Sign In" ? "Signed In" : "Signed Out",
+                    "grant",
+                    "g-all" + (type === "Sign In" ? "s" : "o")
+                  )
+                : null
             }
           >
             <FontAwesomeIcon icon={faCheck} /> Grant All
@@ -216,11 +221,16 @@ function RequestsPage() {
                 : "")
             }
             onClick={() =>
-              sendBulkRequest(
-                type === "Sign In" ? "SignIn" : "SignOut",
-                "deny",
-                "d-all" + (type === "Sign In" ? "s" : "o")
-              )
+              (type === "Sign In"
+                ? requests.signinrequests
+                : requests.signoutrequests
+              ).length !== 0
+                ? sendBulkRequest(
+                    type === "Sign In" ? "SignIn" : "SignOut",
+                    "deny",
+                    "d-all" + (type === "Sign In" ? "s" : "o")
+                  )
+                : null
             }
           >
             <FontAwesomeIcon icon={faX} /> Deny All
