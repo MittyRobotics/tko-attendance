@@ -4,7 +4,6 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const logger = require("morgan");
-var moesifExpress = require("moesif-express");
 
 const passport = require("passport");
 const authRoutes = require("./routes/auth");
@@ -22,28 +21,12 @@ let setCache = function (req, res, next) {
   next();
 };
 
-var options = {
-  applicationId: process.env.MOESIF_APPLICATION_ID,
-
-  identifyUser: function (req, res) {
-    if (req.user) {
-      return req.user.id;
-    }
-    return undefined;
-  },
-
-  getSessionToken: function (req, res) {
-    return req.headers["Authorization"];
-  },
-};
-
 const app = express();
 const PORT = process.env.PORT || 4000;
 app.disable("x-powered-by");
 app.set("trust proxy", 1);
 app.use(logger("dev"));
 
-app.use(moesifExpress(options));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
