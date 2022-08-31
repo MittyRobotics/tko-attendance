@@ -3,8 +3,11 @@ import ReactLoading from "react-loading";
 import $ from "jquery";
 
 import "bulma/css/bulma.min.css";
+
 import "datatables.net-bm/css/dataTables.bulma.min.css";
 import "datatables.net-bm/js/dataTables.bulma.min.js";
+// import "datatables.net-buttons-bm/js/buttons.bulma.min.js";
+// import "datatables.net-buttons-bm/css/buttons.bulma.min.css";
 
 import "animate.css";
 import "hover.css";
@@ -14,11 +17,28 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleLeft } from "@fortawesome/free-solid-svg-icons";
 import RosterModal from "./components/RosterModal";
 
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
+
+require("jszip");
+require("datatables.net-buttons-bm")();
+require("datatables.net-buttons/js/buttons.html5.js")();
+require("datatables.net-buttons/js/buttons.print.js")();
+
 function RosterPage() {
   const [userList, setUserList] = useState([]);
   const [presentCount, setPresentCount] = useState([]);
 
   const [rosterClicked, setRosterClicked] = useState([false, "", "", [""]]);
+
+  const getCurrentDateSimplified = () => {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    return `${year}-${month}-${day}`;
+  };
 
   const hoursToHoursMinutes = (num) => {
     var decimalTime = num;
@@ -60,10 +80,25 @@ function RosterPage() {
           $("#rosterTable").DataTable().destroy();
         }
         $(() => {
-          $("#rosterTable").DataTable({
+          var table = $("#rosterTable").DataTable({
+            // dom: "Bf",
+            searching: true,
             info: false,
             paging: false,
+            buttons: [
+              "csv",
+              {
+                extend: "print",
+                text: "Print",
+                message: `Attendance Record: ${getCurrentDateSimplified()}`,
+                title: "TKO Attendance",
+              },
+            ],
           });
+          table
+            .buttons()
+            .container()
+            .appendTo($("#rosterTable_filter", table.table().container()));
         });
       });
   };
