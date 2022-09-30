@@ -2,16 +2,35 @@ import supabase from "../supabase-setup";
 import moment from "moment";
 
 async function insertNewAttendanceLog(user, action) {
-  let { data, error } = await supabase.from("attendance").insert({
-    action: action,
-    user_id: user.id,
-    name: user.name,
-  });
+  const { data, error } = await supabase
+    .from("attendance")
+    .select("*")
+    .match({ user_id: user.id })
+    .order("action_logged_at", { ascending: true });
 
   if (error) {
-    return false;
+    console.log(false);
   }
-  return true;
+
+  // print last element of data1
+  // console.log(data[data.length - 1]);
+
+  // if this is true, the server is either skipping requests or something bugged out. lets hotfix it :D
+  // if the requested action has already been logged, dont log it again
+  if (data[data.length - 1].action === action) {
+    return true;
+  } else {
+    let { data, error } = await supabase.from("attendance").insert({
+      action: action,
+      user_id: user.id,
+      name: user.name,
+    });
+
+    if (error) {
+      return false;
+    }
+    return true;
+  }
 }
 
 async function calculateTotalHours(user_id, finalTimestamp = null) {
