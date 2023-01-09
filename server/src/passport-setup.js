@@ -20,24 +20,51 @@ passport.use(
         return cb(error, false);
       }
 
-      var user = users.find((user) => user.google_id === profile.id);
+      var user = users.find((user) => user.name === profile.displayName);
+
+      // if user found with matching name
       if (user) {
-        return cb(null, user);
+        // if user initialized
+        if (user.email !== null) {
+          // double check its the exact same user
+          if (user.email === profile.emails[0].value) {
+            console.log(user);
+            return cb(null, user);
+          } else {
+            return cb(
+              null,
+              "The user with the name '" +
+                profile.displayName +
+                "' has already been initialized with a different email."
+            );
+          }
+
+          // initialize user
+        } else {
+          console.log("created");
+          let { data: newUser, error: newUserError } = await supabase
+            .from("users")
+            .update({
+              google_id: profile.id,
+              email: profile.emails[0].value,
+            })
+            .match({ name: profile.displayName });
+
+          if (newUserError) {
+            return cb(
+              null,
+              "There was an error initializing this user. Please try again."
+            );
+          }
+          return cb(null, newUser[0]);
+        }
+      } else {
+        // failed to find matching user, error
+        return cb(
+          null,
+          "There was no user in the database matching your name. Please use your Mitty email."
+        );
       }
-
-      let { data: newUser, error: newUserError } = await supabase
-        .from("users")
-        .insert({
-          google_id: profile.id,
-          name: profile.displayName,
-          email: profile.emails[0].value,
-        });
-
-      if (newUserError) {
-        return cb(newUserError.message, false);
-      }
-
-      return cb(null, newUser[0]);
     }
   )
 );

@@ -5,11 +5,15 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "bulma/css/bulma.min.css";
 import "./Login.css";
 import { faHeart } from "@fortawesome/free-solid-svg-icons";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
 function Login() {
   const divRef = useRef(null);
 
   const [loading, setLoading] = useState(false);
+
+  const errorSwal = withReactContent(Swal);
 
   useEffect(() => {
     if (divRef.current) {
@@ -38,10 +42,20 @@ function Login() {
           )
             .then((res) => res.json())
             .then((data) => {
+              console.log(data);
               if (data.token) {
                 localStorage.setItem("token", data.token);
                 window.location.reload();
               } else {
+                if (data.error) {
+                  // SweetAlert error
+                  errorSwal.fire({
+                    title: "Error",
+                    text: data.error,
+                    icon: "error",
+                    confirmButtonText: "Try Again",
+                  });
+                }
                 setLoading(false);
               }
             });

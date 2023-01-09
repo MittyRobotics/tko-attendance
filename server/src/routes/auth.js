@@ -11,6 +11,14 @@ router.post(
     failureRedirect: process.env["CLIENT_URL"],
   }),
   async (req, res) => {
+    // check if req is string error first
+    if (typeof req.user === "string") {
+      return res.json({
+        token: null,
+        error: req.user,
+      });
+    }
+
     jwt.sign(
       { id: req.user.google_id },
       process.env.JWT_SECRET,
