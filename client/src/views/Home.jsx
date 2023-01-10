@@ -57,13 +57,13 @@ function Home({ user }) {
           <FontAwesomeIcon icon={faQrcode} /> QR Scanner
         </button>
         <br></br>
-        <button
+        {/* <button
           className="button is-warning block action-btn hvr-grow"
           onClick={() => (window.location = "/requests")}
         >
           <FontAwesomeIcon icon={faArrowRightToBracket} /> Requests
         </button>
-        <br></br>
+        <br></br> */}
         <button
           className="button is-link block action-btn hvr-grow"
           onClick={() => (window.location = "/roster")}
@@ -92,6 +92,7 @@ function Home({ user }) {
 
   const adminToggle = () => {
     if (user.admin) {
+      console.log("here");
       setAdminPresentTagClicked(true);
       fetch(process.env.REACT_APP_SERVER_URL + `/user/update/${user.id}`, {
         method: "POST",
@@ -121,12 +122,12 @@ function Home({ user }) {
     <div>
       <section className="hero-pattern">
         <div className="container sign-out block">
-          <button
+          {/* <button
             className="button is-link is-light settings-btn animate__animated animate__fadeIn"
             onClick={() => setSettingsClicked(true)}
           >
             <FontAwesomeIcon icon={faGear} /> Settings
-          </button>
+          </button> */}
           <button
             className={
               "button is-danger animate__animated animate__fadeIn" +
@@ -144,7 +145,11 @@ function Home({ user }) {
           <h1 className="name">{user.name}</h1>
           <h2 className="email">{user.email.split("@")[0]}</h2>
           <h3 className="department-grade">
-            {user.department} Department |{" "}
+            Level:{" "}
+            <span style={{ textDecoration: "underline" }}>
+              {user.department}
+            </span>{" "}
+            |{" "}
             {user.current_grade === -1
               ? "No Grade"
               : "Grade " + user.current_grade}
@@ -156,7 +161,7 @@ function Home({ user }) {
             }
             onClick={() => adminToggle()}
           >
-            {user.present ? "Signed In" : "Signed Out"}
+            {user.present ? "Clocked In" : "Clocked Out"}
           </span>
         </div>
         <div className="columns home-actions animate__animated animate__fadeInUp">
@@ -171,7 +176,7 @@ function Home({ user }) {
                 <FontAwesomeIcon icon={faQrcode} /> QR Code
               </button>
               <br></br>
-              <button
+              {/* <button
                 className="button is-warning block action-btn hvr-grow"
                 onClick={() => setRequestClicked(true)}
               >
@@ -184,7 +189,7 @@ function Home({ user }) {
                 />{" "}
                 Request {user.present ? "Sign Out" : "Sign In"}
               </button>
-              <br></br>
+              <br></br> */}
               <button
                 className="button is-link block action-btn hvr-grow"
                 onClick={() => setStatsClicked(true)}

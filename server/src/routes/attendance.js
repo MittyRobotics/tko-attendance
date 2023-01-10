@@ -8,6 +8,7 @@ const router = express.Router();
 
 // mounted at /attendance/
 
+// get all attendance records by user id
 async function recordByUserId(user_id) {
   const { data, error } = await supabase
     .from("attendance")
@@ -59,7 +60,7 @@ async function recordByUserId(user_id) {
   return userData;
 }
 
-// get attendance records by user id
+// get attendance records by user id (formal request func)
 router.get(
   "/user/:user_id",
   passport.authenticate("jwt", { session: false }),
@@ -138,7 +139,7 @@ router.get(
       });
       return;
     }
-    
+
     const { data, error } = await supabase.rpc(`timestamp_text_table`, {
       datevalue: date,
     });
@@ -193,61 +194,62 @@ router.get(
 );
 
 // get all attendance requests
-router.get(
-  "/requests",
-  passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    if (!req.user.admin) {
-      res.status(401).json({
-        message: "Error: not admin",
-        success: false,
-      });
-      return;
-    }
+// router.get(
+//   "/requests",
+//   passport.authenticate("jwt", { session: false }),
+//   async (req, res) => {
+//     if (!req.user.admin) {
+//       res.status(401).json({
+//         message: "Error: not admin",
+//         success: false,
+//       });
+//       return;
+//     }
 
-    const { data, error } = await supabase
-      .from("users")
-      .select("id, name, department, requested_action")
-      .not("requested_action", "eq", "none")
-      .order("id", { ascending: true });
+//     const { data, error } = await supabase
+//       .from("users")
+//       .select("id, name, department, requested_action")
+//       .not("requested_action", "eq", "none")
+//       .order("id", { ascending: true });
 
-    if (error) {
-      res.status(500).json({
-        message: "Error: retrieving requests data",
-        success: false,
-      });
-      return;
-    }
+//     if (error) {
+//       res.status(500).json({
+//         message: "Error: retrieving requests data",
+//         success: false,
+//       });
+//       return;
+//     }
 
-    let signin = [];
-    let signout = [];
+//     let signin = [];
+//     let signout = [];
 
-    for (let i = 0; i < data.length; i++) {
-      if (data[i].requested_action.includes("SignIn")) {
-        signin.push(data[i]);
-      } else {
-        signout.push(data[i]);
-      }
-    }
+//     for (let i = 0; i < data.length; i++) {
+//       if (data[i].requested_action.includes("SignIn")) {
+//         signin.push(data[i]);
+//       } else {
+//         signout.push(data[i]);
+//       }
+//     }
 
-    let finalData = {
-      signinrequests: signin,
-      signoutrequests: signout,
-    };
+//     let finalData = {
+//       signinrequests: signin,
+//       signoutrequests: signout,
+//     };
 
-    res.status(200).json({
-      requests: finalData,
-      message: "Success",
-      success: true,
-    });
-  }
-);
+//     res.status(200).json({
+//       requests: finalData,
+//       message: "Success",
+//       success: true,
+//     });
+//   }
+// );
 
 // update attendance by user id
 router.post(
   "/update/user/:user_id",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
+    console.log(req.body);
     const { user_id } = req.params;
 
     if (!req.user.admin) {
@@ -315,72 +317,72 @@ router.post(
 );
 
 // update all attendance records
-router.post(
-  "/update_requested",
-  passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    let actionCheck = req.body.type === "Signed In" ? "SignIn" : "SignOut";
-    let presentCheck = req.body.type === "Signed In" ? true : false;
+// router.post(
+//   "/update_requested",
+//   passport.authenticate("jwt", { session: false }),
+//   async (req, res) => {
+//     let actionCheck = req.body.type === "Signed In" ? "SignIn" : "SignOut";
+//     let presentCheck = req.body.type === "Signed In" ? true : false;
 
-    const { data, error } = await supabase
-      .from("users")
-      .update({ requested_action: "none", present: presentCheck })
-      .select("present, requested_action")
-      .textSearch("requested_action", actionCheck, {
-        config: "english",
-      });
+//     const { data, error } = await supabase
+//       .from("users")
+//       .update({ requested_action: "none", present: presentCheck })
+//       .select("present, requested_action")
+//       .textSearch("requested_action", actionCheck, {
+//         config: "english",
+//       });
 
-    if (error) {
-      res.status(500).json({
-        message: "Error: " + error.message,
-        success: false,
-      });
-      return;
-    }
+//     if (error) {
+//       res.status(500).json({
+//         message: "Error: " + error.message,
+//         success: false,
+//       });
+//       return;
+//     }
 
-    for (let i = 0; i < req.body.data.length; i++) {
-      let updateBody = {};
-      updateBody.action = req.body.type;
-      updateBody.user_id = req.body.data[i].id;
-      updateBody.name = req.body.data[i].name;
-      updateBody.action_logged_at =
-        req.body.data[i].requested_action.split(",")[1];
+//     for (let i = 0; i < req.body.data.length; i++) {
+//       let updateBody = {};
+//       updateBody.action = req.body.type;
+//       updateBody.user_id = req.body.data[i].id;
+//       updateBody.name = req.body.data[i].name;
+//       updateBody.action_logged_at =
+//         req.body.data[i].requested_action.split(",")[1];
 
-      let total_hours = await calculateTotalHours(
-        updateBody.user_id,
-        updateBody.action_logged_at
-      );
+//       let total_hours = await calculateTotalHours(
+//         updateBody.user_id,
+//         updateBody.action_logged_at
+//       );
 
-      const { users, err } = await supabase
-        .from("users")
-        .update({ total_hours: total_hours })
-        .match({ id: updateBody.user_id });
+//       const { users, err } = await supabase
+//         .from("users")
+//         .update({ total_hours: total_hours })
+//         .match({ id: updateBody.user_id });
 
-      if (err) {
-        res.status(500).json({
-          message: "Error: " + err.message,
-          success: false,
-        });
-        return;
-      }
+//       if (err) {
+//         res.status(500).json({
+//           message: "Error: " + err.message,
+//           success: false,
+//         });
+//         return;
+//       }
 
-      const { data, error } = await supabase
-        .from("attendance")
-        .insert(updateBody);
+//       const { data, error } = await supabase
+//         .from("attendance")
+//         .insert(updateBody);
 
-      if (error) {
-        res.status(500).json({
-          message: "Error: " + error.message,
-          success: false,
-        });
-        return;
-      }
-    }
-    res.status(200).json({
-      message: "Success",
-      success: true,
-    });
-  }
-);
+//       if (error) {
+//         res.status(500).json({
+//           message: "Error: " + error.message,
+//           success: false,
+//         });
+//         return;
+//       }
+//     }
+//     res.status(200).json({
+//       message: "Success",
+//       success: true,
+//     });
+//   }
+// );
 
 module.exports = router;

@@ -1,0 +1,5 @@
+# ignore venv files
+bin/
+include/
+lib/
+lib64/

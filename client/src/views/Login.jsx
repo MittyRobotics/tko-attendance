@@ -49,12 +49,14 @@ function Login() {
               } else {
                 if (data.error) {
                   // SweetAlert error
-                  errorSwal.fire({
-                    title: "Error",
-                    text: data.error,
-                    icon: "error",
-                    confirmButtonText: "Try Again",
-                  });
+                  errorSwal
+                    .fire({
+                      title: "Error",
+                      text: data.error,
+                      icon: "error",
+                      confirmButtonText: "Try Again",
+                    })
+                    .then(() => window.location.reload());
                 }
                 setLoading(false);
               }

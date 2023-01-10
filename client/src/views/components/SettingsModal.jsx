@@ -11,7 +11,7 @@ function SettingsModal({ user, settingsClicked, setSettingsClicked }) {
     let finalGrade = "";
 
     if (dept === "---") {
-      finalDept = "No";
+      finalDept = "None";
     } else {
       finalDept = dept;
     }
@@ -70,13 +70,9 @@ function SettingsModal({ user, settingsClicked, setSettingsClicked }) {
           <div className="select is-primary">
             <select onChange={handleDeptChange}>
               <option>---</option>
-              <option>FRC Programming</option>
-              <option>JV Programming</option>
-              <option>FRC Mechanical</option>
-              <option>JV Mechanical</option>
-              <option>FRC Electrical</option>
-              <option>JV Electrical</option>
-              <option>Operations</option>
+              <option>FRC</option>
+              <option>JV</option>
+              <option>Mentor</option>
             </select>
           </div>
           <h1 className="modal-title">Change Grade</h1>

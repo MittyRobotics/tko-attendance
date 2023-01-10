@@ -131,7 +131,7 @@ function RosterPage() {
                   <span
                     className={
                       "tag is-light " +
-                      (user.department === "No" ? "is-danger" : "is-link")
+                      (user.department === "None" ? "is-danger" : "is-link")
                     }
                     onClick={() => {
                       setRosterClicked([
@@ -139,20 +139,15 @@ function RosterPage() {
                         "department",
                         user.name,
                         [
-                          "FRC Programming",
-                          "FRC Electrical",
-                          "FRC Mechanical",
-                          "JV Programming",
-                          "JV Electrical",
-                          "JV Mechanical",
-                          "Operations",
-                          "No",
+                          "FRC",
+                          "JV",
+                          "Mentor",
                         ],
                         user.id,
                       ]);
                     }}
                   >
-                    {user.department === "No" ? "Not Set" : user.department}
+                    {user.department === "None" ? "Not Set" : user.department}
                   </span>
                 </td>
                 <td>

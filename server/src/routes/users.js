@@ -89,6 +89,78 @@ router.get(
   }
 );
 
+router.post("/rfid/update", async (req, res) => {
+  const unique_id = req.query.id;
+  const token = req.query.token;
+
+  if (!unique_id || !token) {
+    res.status(500).json({
+      message: "Error: Missing Parameters",
+      success: false,
+    });
+    return;
+  }
+
+  if (process.env["RFID_TOKEN"] !== token) {
+    res.status(500).json({
+      message: "Error: Invalid Token",
+      success: false,
+    });
+    return;
+  }
+
+  const { data, error } = await supabase.from("users");
+  if (error) {
+    res.status(500).json({
+      message: "Error: " + error.message,
+      success: false,
+    });
+    return;
+  }
+  var user = data.find((user) => user.unique_id === unique_id);
+
+  if (!user) {
+    res.status(500).json({
+      message:
+        "Could not locate user with that ID. Please register the RFID card and try again.",
+      success: false,
+    });
+    return;
+  }
+
+  let updatedValue = !user.present;
+
+  let message = updatedValue
+    ? user.name + " Clocked In"
+    : user.name + " Clocked Out";
+
+  if (!(await updateUserPresent(user.google_id, updatedValue, user.id))) {
+    res.status(500).json({
+      message: "Internal server error: User could not be updated.",
+      success: false,
+    });
+    return;
+  }
+
+  if (
+    !(await insertNewAttendanceLog(
+      user,
+      updatedValue ? "Signed In" : "Signed Out"
+    ))
+  ) {
+    res.status(500).json({
+      message: "Error: inserting attendance",
+      success: false,
+    });
+    return;
+  }
+
+  res.status(200).json({
+    message: message,
+    success: true,
+  });
+});
+
 // update a user (updating specific fields requires admin)
 router.post(
   "/update/:id",
@@ -97,16 +169,7 @@ router.post(
     const { id } = req.params;
 
     const validGrades = [9, 10, 11, 12, -1];
-    const validDepts = [
-      "FRC Programming",
-      "JV Programming",
-      "FRC Electrical",
-      "JV Electrical",
-      "FRC Mechanical",
-      "JV Mechanical",
-      "Operations",
-      "No",
-    ];
+    const validDepts = ["FRC", "JV", "Mentor", "None"];
 
     let updateBody = {};
 
@@ -207,134 +270,134 @@ router.post(
 );
 
 // update all users
-router.post(
-  "/update_requested",
-  passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    const { data, error } = await supabase
-      .from("users")
-      .update({ requested_action: "none" })
-      .select("id, requested_action")
-      .textSearch("requested_action", req.body.type, {
-        config: "english",
-      });
+// router.post(
+//   "/update_requested",
+//   passport.authenticate("jwt", { session: false }),
+//   async (req, res) => {
+//     const { data, error } = await supabase
+//       .from("users")
+//       .update({ requested_action: "none" })
+//       .select("id, requested_action")
+//       .textSearch("requested_action", req.body.type, {
+//         config: "english",
+//       });
 
-    if (error) {
-      res.status(500).json({
-        message: error.message,
-        success: false,
-      });
-      return;
-    }
+//     if (error) {
+//       res.status(500).json({
+//         message: error.message,
+//         success: false,
+//       });
+//       return;
+//     }
 
-    res.status(200).json({
-      message: "success",
-      success: true,
-    });
-  }
-);
+//     res.status(200).json({
+//       message: "success",
+//       success: true,
+//     });
+//   }
+// );
 
 // user request to sign in or out
-router.post(
-  "/:id/request",
-  passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    const { id } = req.params;
-    if (req.body.requested_action === "Cancel Current Request") {
-      const { data: rp, er } = await supabase
-        .from("users")
-        .update({ requested_action: "none" })
-        .match({ id: id });
+// router.post(
+//   "/:id/request",
+//   passport.authenticate("jwt", { session: false }),
+//   async (req, res) => {
+//     const { id } = req.params;
+//     if (req.body.requested_action === "Cancel Current Request") {
+//       const { data: rp, er } = await supabase
+//         .from("users")
+//         .update({ requested_action: "none" })
+//         .match({ id: id });
 
-      if (er) {
-        res.status(500).json({
-          message: "Error: " + er.message,
-          success: false,
-        });
-        return;
-      }
+//       if (er) {
+//         res.status(500).json({
+//           message: "Error: " + er.message,
+//           success: false,
+//         });
+//         return;
+//       }
 
-      res.status(200).json({
-        success: true,
-        message: "Request Successfully Canceled",
-      });
-      return;
-    }
+//       res.status(200).json({
+//         success: true,
+//         message: "Request Successfully Canceled",
+//       });
+//       return;
+//     }
 
-    if (
-      req.body.requested_action !== "Sign In" &&
-      req.body.requested_action !== "Sign Out"
-    ) {
-      res.status(500).json({
-        message: "Error: Invalid Request",
-        success: false,
-      });
-      return;
-    }
+//     if (
+//       req.body.requested_action !== "Sign In" &&
+//       req.body.requested_action !== "Sign Out"
+//     ) {
+//       res.status(500).json({
+//         message: "Error: Invalid Request",
+//         success: false,
+//       });
+//       return;
+//     }
 
-    let { data, er } = await supabase
-      .from("users")
-      .select("requested_action, present, id")
-      .match({ id: id });
+//     let { data, er } = await supabase
+//       .from("users")
+//       .select("requested_action, present, id")
+//       .match({ id: id });
 
-    if (er) {
-      res.status(500).json({
-        message: "Error: " + er.message,
-        success: false,
-      });
-      return;
-    }
+//     if (er) {
+//       res.status(500).json({
+//         message: "Error: " + er.message,
+//         success: false,
+//       });
+//       return;
+//     }
 
-    data = data[0];
+//     data = data[0];
 
-    if (
-      (data.present === true && req.body.requested_action === "Sign In") ||
-      (data.present === false && req.body.requested_action === "Sign Out")
-    ) {
-      res.status(500).json({
-        success: false,
-        message:
-          "Cannot request to sign in or out when already signed in or out",
-      });
-      return;
-    }
+//     if (
+//       (data.present === true && req.body.requested_action === "Sign In") ||
+//       (data.present === false && req.body.requested_action === "Sign Out")
+//     ) {
+//       res.status(500).json({
+//         success: false,
+//         message:
+//           "Cannot request to sign in or out when already signed in or out",
+//       });
+//       return;
+//     }
 
-    if (
-      data.requested_action.includes(
-        req.body.requested_action.split(" ").join("")
-      )
-    ) {
-      res.status(200).json({
-        success: false,
-        message: "Request Already Sent",
-      });
-      return;
-    }
+//     if (
+//       data.requested_action.includes(
+//         req.body.requested_action.split(" ").join("")
+//       )
+//     ) {
+//       res.status(200).json({
+//         success: false,
+//         message: "Request Already Sent",
+//       });
+//       return;
+//     }
 
-    var local_timestamp = toISOStringLocal();
+//     var local_timestamp = toISOStringLocal();
 
-    let updateText =
-      req.body.requested_action.split(" ").join("") + "," + local_timestamp;
+//     let updateText =
+//       req.body.requested_action.split(" ").join("") + "," + local_timestamp;
 
-    const { data: resp, err } = await supabase
-      .from("users")
-      .update({ requested_action: updateText })
-      .match({ id: id });
+//     const { data: resp, err } = await supabase
+//       .from("users")
+//       .update({ requested_action: updateText })
+//       .match({ id: id });
 
-    if (err) {
-      res.status(500).json({
-        message: "Error: " + err.message,
-        success: false,
-      });
-      return;
-    }
+//     if (err) {
+//       res.status(500).json({
+//         message: "Error: " + err.message,
+//         success: false,
+//       });
+//       return;
+//     }
 
-    res.status(200).json({
-      success: true,
-      message: "Request Successfully Sent",
-    });
-  }
-);
+//     res.status(200).json({
+//       success: true,
+//       message: "Request Successfully Sent",
+//     });
+//   }
+// );
 
 // user QR code scanned
 router.post(

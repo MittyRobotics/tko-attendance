@@ -17,7 +17,7 @@ async function insertNewAttendanceLog(user, action) {
 
   // if this is true, the server is either skipping requests or something bugged out. lets hotfix it :D
   // if the requested action has already been logged, dont log it again
-  if (data[data.length - 1].action === action) {
+  if (data[data.length - 1] && data[data.length - 1].action === action) {
     return true;
   } else {
     let { data, error } = await supabase.from("attendance").insert({

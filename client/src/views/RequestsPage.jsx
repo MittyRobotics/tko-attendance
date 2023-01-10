@@ -258,7 +258,7 @@ function RequestsPage() {
                   <div className="column student-desc">
                     <h1 className="request-title">{request.name}</h1>
                     <span className="tag is-link">
-                      {request.department === "No"
+                      {request.department === "None"
                         ? "No Dept."
                         : request.department}
                     </span>

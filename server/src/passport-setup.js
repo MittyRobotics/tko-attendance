@@ -25,12 +25,13 @@ passport.use(
       // if user found with matching name
       if (user) {
         // if user initialized
-        if (user.email !== null) {
-          // double check its the exact same user
+        if (user.email) {
+          // double check its the exact same user, then log them in
           if (user.email === profile.emails[0].value) {
             console.log(user);
             return cb(null, user);
           } else {
+            // wrong email used
             return cb(
               null,
               "The user with the name '" +
@@ -39,9 +40,24 @@ passport.use(
             );
           }
 
-          // initialize user
+          // initialize user on their first login
         } else {
-          console.log("created");
+          // check that they have the correct domain (Mitty)
+          if (
+            !(
+              profile.emails[0].value.includes("mittymonarch.com") ||
+              profile.emails[0].value.includes("mittymonarchs.com")
+            )
+          ) {
+            // Mentors are the exception, can use personal email
+            if (user.department !== "Mentor") {
+              return cb(
+                null,
+                "You are not a mentor. Please use your Mitty email."
+              );
+            }
+          }
+
           let { data: newUser, error: newUserError } = await supabase
             .from("users")
             .update({
@@ -62,7 +78,7 @@ passport.use(
         // failed to find matching user, error
         return cb(
           null,
-          "There was no user in the database matching your name. Please use your Mitty email."
+          "There is no user in the database matching your name. Please use your Mitty email."
         );
       }
     }
