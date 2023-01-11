@@ -122,12 +122,12 @@ function Home({ user }) {
     <div>
       <section className="hero-pattern">
         <div className="container sign-out block">
-          {/* <button
+          <button
             className="button is-link is-light settings-btn animate__animated animate__fadeIn"
             onClick={() => setSettingsClicked(true)}
           >
             <FontAwesomeIcon icon={faGear} /> Settings
-          </button> */}
+          </button>
           <button
             className={
               "button is-danger animate__animated animate__fadeIn" +

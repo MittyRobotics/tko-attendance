@@ -3,18 +3,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useState } from "react";
 
 function SettingsModal({ user, settingsClicked, setSettingsClicked }) {
-  const [dept, setDept] = useState("---");
   const [grade, setGrade] = useState("---");
 
   const modifySettings = () => {
-    let finalDept = "";
     let finalGrade = "";
-
-    if (dept === "---") {
-      finalDept = "None";
-    } else {
-      finalDept = dept;
-    }
 
     if (grade === "---") {
       finalGrade = "-1";
@@ -32,7 +24,6 @@ function SettingsModal({ user, settingsClicked, setSettingsClicked }) {
         "Access-Control-Allow-Credentials": true,
       },
       body: JSON.stringify({
-        department: finalDept,
         current_grade: finalGrade,
       }),
     })
@@ -44,12 +35,6 @@ function SettingsModal({ user, settingsClicked, setSettingsClicked }) {
           alert("settings modal: " + data.message);
         }
       });
-  };
-
-  const handleDeptChange = (event) => {
-    let { value } = event.target;
-
-    setDept(value);
   };
 
   const handleGradeChange = (event) => {
@@ -66,16 +51,12 @@ function SettingsModal({ user, settingsClicked, setSettingsClicked }) {
       ></div>
       <div className="modal-content">
         <div className="box">
-          <h1 className="modal-title">Change Department</h1>
-          <div className="select is-primary">
-            <select onChange={handleDeptChange}>
-              <option>---</option>
-              <option>FRC</option>
-              <option>JV</option>
-              <option>Mentor</option>
-            </select>
-          </div>
           <h1 className="modal-title">Change Grade</h1>
+          <p>
+            Do not fake your grade, we will know. Mentors may leave this field
+            at "---"
+          </p>
+          <br></br>
           <div className="select is-primary">
             <select onChange={handleGradeChange}>
               <option>---</option>
