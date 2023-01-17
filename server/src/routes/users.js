@@ -119,10 +119,10 @@ router.post("/rfid/update", async (req, res) => {
   }
   var user = data.find((user) => user.unique_id === unique_id);
 
-  if (!user) {
+  if (!user || !user.google_id) {
     res.status(500).json({
       message:
-        "Could not locate user with that ID. Please register the RFID card and try again.",
+        "Could not locate user with that ID. Either user has not self-initialized, or please register the RFID card and try again.",
       success: false,
     });
     return;
