@@ -7,7 +7,7 @@ import time
 
 load_dotenv()
 
-device = InputDevice("/dev/input/event26") # my keyboard
+device = InputDevice("/dev/input/event17") # my keyboard
 device.grab()
 
 scancodes = {

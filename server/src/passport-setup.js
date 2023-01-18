@@ -20,51 +20,32 @@ passport.use(
         return cb(error, false);
       }
 
-      var user = users.find((user) => user.name === profile.displayName);
+      var user = users.find((user) => user.email === profile.emails[0].value);
 
-      // if user found with matching name
+      // if user found with matching email
       if (user) {
         // if user initialized
-        if (user.email) {
-          // double check its the exact same user, then log them in
-          if (user.email === profile.emails[0].value) {
-            console.log(user);
-            return cb(null, user);
-          } else {
-            // wrong email used
-            return cb(
-              null,
-              "The user with the name '" +
-                profile.displayName +
-                "' has already been initialized with a different email."
-            );
-          }
+        if (user.google_id) {
+          return cb(null, user);
+          // } else {
+          //     // wrong email used
+          //     return cb(
+          //       null,
+          //       "The user with the name '" +
+          //         profile.displayName +
+          //         "' has already been initialized with a different email."
+          //     );
+          //   }
 
           // initialize user on their first login
         } else {
-          // check that they have the correct domain (Mitty)
-          if (
-            !(
-              profile.emails[0].value.includes("mittymonarch.com") ||
-              profile.emails[0].value.includes("mittymonarchs.com")
-            )
-          ) {
-            // Mentors are the exception, can use personal email
-            if (user.department !== "Mentor") {
-              return cb(
-                null,
-                "You are not a mentor. Please use your Mitty email."
-              );
-            }
-          }
-
           let { data: newUser, error: newUserError } = await supabase
             .from("users")
             .update({
               google_id: profile.id,
-              email: profile.emails[0].value,
+              name: profile.displayName,
             })
-            .match({ name: profile.displayName });
+            .match({ email: profile.emails[0].value });
 
           if (newUserError) {
             return cb(
@@ -78,7 +59,7 @@ passport.use(
         // failed to find matching user, error
         return cb(
           null,
-          "There is no user in the database matching your name. Please use your Mitty email."
+          "There is no user in the database matching your email. Please use your Mitty email."
         );
       }
     }

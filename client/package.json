@@ -27,7 +27,7 @@
     "react-qr-scanner": "1.0.0-alpha.8",
     "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.1",
-    "sweetalert2": "^11.6.16",
+    "sweetalert2": "^11.7.0",
     "sweetalert2-react-content": "^5.0.7"
   },
   "proxy": "http://localhost:4000",
